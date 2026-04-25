@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rust WASM Demo</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        #message {
+            font-size: 2rem;
+            padding: 2rem;
+            background: #16213e;
+            border-radius: 8px;
+            border: 2px solid #0f3460;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="message">Loading...</div>
+    <script type="module">
+        import init, { get_message } from './pkg/puzzle_platformer.js';
+
+        async function run() {
+            await init();
+            const message = get_message();
+            document.getElementById('message').textContent = message;
+        }
+
+        run();
+    </script>
+</body>
+
+</html>
