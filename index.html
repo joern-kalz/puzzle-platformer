@@ -4,11 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rust WASM Demo</title>
+    <title>Rust WASM Dynamic Image</title>
     <style>
         body {
             font-family: system-ui, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -17,25 +18,64 @@
             color: #eee;
         }
 
-        #message {
-            font-size: 2rem;
-            padding: 2rem;
-            background: #16213e;
-            border-radius: 8px;
+        canvas {
             border: 2px solid #0f3460;
+            border-radius: 8px;
+            image-rendering: pixelated;
+        }
+
+        #message {
+            font-size: 1.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 
 <body>
-    <div id="message">Loading...</div>
+    <div id="message">Rust WASM Dynamic Image</div>
+    <canvas id="canvas"></canvas>
     <script type="module">
-        import init, { get_message } from './pkg/puzzle_platformer.js';
+        import init, { World } from './pkg/puzzle_platformer.js';
 
         async function run() {
-            await init();
-            const message = get_message();
-            document.getElementById('message').textContent = message;
+            // Initialize WASM - this returns the wasm object
+            const wasm = await init();
+
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Create a World instance
+            const world = new World();
+
+            const width = world.get_width();
+            const height = world.get_height();
+
+            canvas.width = width;
+            canvas.height = height;
+
+            function render(timestamp) {
+                // Update the pixel buffer in Rust
+                world.update_frame(timestamp);
+
+                // Get the pointer to the pixel buffer
+                const ptr = world.get_pixel_buffer_ptr();
+
+                // Create a Uint8ClampedArray view of the WASM memory
+                const pixels = new Uint8ClampedArray(wasm.memory.buffer, ptr, width * height * 4);
+
+                // Copy pixels to ImageData
+                const imageData = new ImageData(pixels, width, height);
+
+                // Put the image data onto the canvas
+                ctx.putImageData(imageData, 0, 0);
+
+                // Request next frame
+                requestAnimationFrame(render);
+            }
+
+            // Start the render loop
+            requestAnimationFrame(render);
         }
 
         run();
