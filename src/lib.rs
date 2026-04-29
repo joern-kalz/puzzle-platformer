@@ -1,6 +1,10 @@
 use wasm_bindgen::prelude::*;
 use image::ImageReader;
 
+mod character;
+
+use character::Character;
+
 // Image dimensions
 const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
@@ -22,6 +26,7 @@ pub struct World {
     height: u32,
     pixel_buffer: Vec<u8>,
     sprite_sheet: Vec<u8>,
+    character: Character,
 }
 
 #[wasm_bindgen]
@@ -44,6 +49,7 @@ impl World {
             height: HEIGHT,
             pixel_buffer: vec![0u8; (WIDTH * HEIGHT * 4) as usize],
             sprite_sheet,
+            character: Character::new(WIDTH, HEIGHT),
         }
     }
 
@@ -64,36 +70,20 @@ impl World {
 
     /// Update the pixel buffer with a new frame
     pub fn update_frame(&mut self, time: f64) {
-        let width = self.width as usize;
-        let height = self.height as usize;
-        let sprite_sheet_width = SPRITE_SHEET_WIDTH as usize;
-
-        // Calculate which sprite to show (cycle through 6 sprites)
-        let sprite_index = ((time / 200.0) as u32) % NUM_SPRITES;
-        let sprite_x = (sprite_index * SPRITE_WIDTH) as usize;
-
         // Clear pixel buffer first
         self.pixel_buffer.fill(0);
 
-        // Copy the current sprite to the center of the pixel buffer
-        let dest_x = (WIDTH / 2 - SPRITE_WIDTH / 2) as usize;
-        let dest_y = (HEIGHT / 2 - SPRITE_HEIGHT / 2) as usize;
+        // Update character sprite
+        self.character.update(time);
 
-        for y in 0..SPRITE_HEIGHT as usize {
-            for x in 0..SPRITE_WIDTH as usize {
-                let src_idx = (y * sprite_sheet_width + sprite_x + x) * 4;
-                let dest_idx = ((dest_y + y) * width + dest_x + x) * 4;
-
-                // Only copy non-transparent pixels
-                let alpha = self.sprite_sheet[src_idx + 3];
-                if alpha > 0 {
-                    self.pixel_buffer[dest_idx] = self.sprite_sheet[src_idx];     // R
-                    self.pixel_buffer[dest_idx + 1] = self.sprite_sheet[src_idx + 1]; // G
-                    self.pixel_buffer[dest_idx + 2] = self.sprite_sheet[src_idx + 2]; // B
-                    self.pixel_buffer[dest_idx + 3] = alpha; // A
-                }
-            }
-        }
+        // Draw character to pixel buffer
+        self.character.draw(
+            &mut self.pixel_buffer,
+            &self.sprite_sheet,
+            self.width,
+            self.height,
+            SPRITE_SHEET_WIDTH,
+        );
     }
 }
 
