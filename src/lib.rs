@@ -1,8 +1,19 @@
 use wasm_bindgen::prelude::*;
+use image::ImageReader;
 
 // Image dimensions
 const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
+
+// Sprite sheet dimensions
+const SPRITE_SHEET_WIDTH: u32 = 360;
+const SPRITE_SHEET_HEIGHT: u32 = 60;
+const SPRITE_WIDTH: u32 = 60;
+const SPRITE_HEIGHT: u32 = 60;
+const NUM_SPRITES: u32 = 6;
+
+// Embed the sprite sheet at compile time
+const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
 
 /// World struct containing the pixel buffer and dimensions
 #[wasm_bindgen]
@@ -10,6 +21,7 @@ pub struct World {
     width: u32,
     height: u32,
     pixel_buffer: Vec<u8>,
+    sprite_sheet: Vec<u8>,
 }
 
 #[wasm_bindgen]
@@ -17,10 +29,21 @@ impl World {
     /// Create a new World instance
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
+        // Decode the embedded PNG sprite sheet
+        let img = ImageReader::new(std::io::Cursor::new(SPRITE_SHEET_DATA))
+            .with_guessed_format()
+            .expect("Failed to guess image format")
+            .decode()
+            .expect("Failed to decode sprite sheet");
+
+        // Convert to RGBA bytes
+        let sprite_sheet = img.to_rgba8().into_raw();
+
         World {
             width: WIDTH,
             height: HEIGHT,
             pixel_buffer: vec![0u8; (WIDTH * HEIGHT * 4) as usize],
+            sprite_sheet,
         }
     }
 
@@ -43,26 +66,32 @@ impl World {
     pub fn update_frame(&mut self, time: f64) {
         let width = self.width as usize;
         let height = self.height as usize;
-        
-        // Create a dynamic animated pattern based on time
-        for y in 0..height {
-            for x in 0..width {
-                let idx = (y * width + x) * 4;
-                
-                // Create a moving gradient pattern
-                let phase = time * 0.001;
-                let dx = (x as f64) / (width as f64) * 2.0 * std::f64::consts::PI;
-                let dy = (y as f64) / (height as f64) * 2.0 * std::f64::consts::PI;
-                
-                // Animated color values
-                let r = ((dx.sin() + 1.0) * 0.5 * 127.0 + (phase * 2.0).sin() * 64.0) as u8;
-                let g = ((dy.cos() + 1.0) * 0.5 * 127.0 + (phase * 3.0).cos() * 64.0) as u8;
-                let b = (((dx + dy).sin() + 1.0) * 0.5 * 127.0 + (phase * 5.0).sin() * 64.0) as u8;
-                
-                self.pixel_buffer[idx] = r;     // Red
-                self.pixel_buffer[idx + 1] = g; // Green
-                self.pixel_buffer[idx + 2] = b; // Blue
-                self.pixel_buffer[idx + 3] = 255; // Alpha (fully opaque)
+        let sprite_sheet_width = SPRITE_SHEET_WIDTH as usize;
+
+        // Calculate which sprite to show (cycle through 6 sprites)
+        let sprite_index = ((time / 200.0) as u32) % NUM_SPRITES;
+        let sprite_x = (sprite_index * SPRITE_WIDTH) as usize;
+
+        // Clear pixel buffer first
+        self.pixel_buffer.fill(0);
+
+        // Copy the current sprite to the center of the pixel buffer
+        let dest_x = (WIDTH / 2 - SPRITE_WIDTH / 2) as usize;
+        let dest_y = (HEIGHT / 2 - SPRITE_HEIGHT / 2) as usize;
+
+        for y in 0..SPRITE_HEIGHT as usize {
+            for x in 0..SPRITE_WIDTH as usize {
+                let src_idx = (y * sprite_sheet_width + sprite_x + x) * 4;
+                let dest_idx = ((dest_y + y) * width + dest_x + x) * 4;
+
+                // Only copy non-transparent pixels
+                let alpha = self.sprite_sheet[src_idx + 3];
+                if alpha > 0 {
+                    self.pixel_buffer[dest_idx] = self.sprite_sheet[src_idx];     // R
+                    self.pixel_buffer[dest_idx + 1] = self.sprite_sheet[src_idx + 1]; // G
+                    self.pixel_buffer[dest_idx + 2] = self.sprite_sheet[src_idx + 2]; // B
+                    self.pixel_buffer[dest_idx + 3] = alpha; // A
+                }
             }
         }
     }
