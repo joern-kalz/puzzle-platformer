@@ -2,7 +2,7 @@ const SPRITE_WIDTH: u32 = 60;
 const SPRITE_HEIGHT: u32 = 60;
 const NUM_SPRITES: u32 = 6;
 
-use crate::sprite_sheet::SpriteSheet;
+use crate::image::Image;
 
 /// Character struct containing position and sprite state
 pub struct Character {
@@ -30,7 +30,7 @@ impl Character {
     pub fn draw(
         &self,
         pixel_buffer: &mut [u8],
-        sprite_sheet: &SpriteSheet,
+        sprite_sheet: &Image,
         width: u32,
         height: u32,
     ) {

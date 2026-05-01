@@ -1,20 +1,24 @@
 use wasm_bindgen::prelude::*;
 
 mod character;
-mod sprite_sheet;
+mod image;
 
 use character::Character;
-use sprite_sheet::SpriteSheet;
+use image::Image;
 
 const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
+
+const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
+const SPRITE_SHEET_WIDTH: u32 = 360;
+const SPRITE_SHEET_HEIGHT: u32 = 60;
 
 #[wasm_bindgen]
 pub struct World {
     width: u32,
     height: u32,
     pixel_buffer: Vec<u8>,
-    sprite_sheet: SpriteSheet,
+    sprite_sheet: Image,
     character: Character,
 }
 
@@ -27,7 +31,7 @@ impl World {
             width: WIDTH,
             height: HEIGHT,
             pixel_buffer: vec![0u8; (WIDTH * HEIGHT * 4) as usize],
-            sprite_sheet: SpriteSheet::new(),
+            sprite_sheet: Image::new_from_asset(SPRITE_SHEET_DATA, SPRITE_SHEET_WIDTH, SPRITE_SHEET_HEIGHT),
             character: Character::new(WIDTH, HEIGHT),
         }
     }
