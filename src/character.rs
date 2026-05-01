@@ -1,9 +1,8 @@
-use wasm_bindgen::prelude::*;
-
-// Sprite sheet dimensions
 const SPRITE_WIDTH: u32 = 60;
 const SPRITE_HEIGHT: u32 = 60;
 const NUM_SPRITES: u32 = 6;
+
+use crate::sprite_sheet::SpriteSheet;
 
 /// Character struct containing position and sprite state
 pub struct Character {
@@ -31,15 +30,14 @@ impl Character {
     pub fn draw(
         &self,
         pixel_buffer: &mut [u8],
-        sprite_sheet: &[u8],
+        sprite_sheet: &SpriteSheet,
         width: u32,
         height: u32,
-        sprite_sheet_width: u32,
     ) {
         let sprite_x = (self.sprite_index * SPRITE_WIDTH) as usize;
-        let sprite_sheet_width = sprite_sheet_width as usize;
+        let sprite_sheet_width = sprite_sheet.width as usize;
         let width = width as usize;
-        let height = height as usize;
+        let _height = height as usize;
 
         for y in 0..SPRITE_HEIGHT as usize {
             for x in 0..SPRITE_WIDTH as usize {
@@ -47,11 +45,11 @@ impl Character {
                 let dest_idx = ((self.dest_y + y) * width + self.dest_x + x) * 4;
 
                 // Only copy non-transparent pixels
-                let alpha = sprite_sheet[src_idx + 3];
+                let alpha = sprite_sheet.data[src_idx + 3];
                 if alpha > 0 && dest_idx + 3 < pixel_buffer.len() {
-                    pixel_buffer[dest_idx] = sprite_sheet[src_idx];     // R
-                    pixel_buffer[dest_idx + 1] = sprite_sheet[src_idx + 1]; // G
-                    pixel_buffer[dest_idx + 2] = sprite_sheet[src_idx + 2]; // B
+                    pixel_buffer[dest_idx] = sprite_sheet.data[src_idx];     // R
+                    pixel_buffer[dest_idx + 1] = sprite_sheet.data[src_idx + 1]; // G
+                    pixel_buffer[dest_idx + 2] = sprite_sheet.data[src_idx + 2]; // B
                     pixel_buffer[dest_idx + 3] = alpha; // A
                 }
             }

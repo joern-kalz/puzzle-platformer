@@ -1,31 +1,20 @@
 use wasm_bindgen::prelude::*;
-use image::ImageReader;
 
 mod character;
+mod sprite_sheet;
 
 use character::Character;
+use sprite_sheet::SpriteSheet;
 
-// Image dimensions
 const WIDTH: u32 = 320;
 const HEIGHT: u32 = 240;
 
-// Sprite sheet dimensions
-const SPRITE_SHEET_WIDTH: u32 = 360;
-const SPRITE_SHEET_HEIGHT: u32 = 60;
-const SPRITE_WIDTH: u32 = 60;
-const SPRITE_HEIGHT: u32 = 60;
-const NUM_SPRITES: u32 = 6;
-
-// Embed the sprite sheet at compile time
-const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
-
-/// World struct containing the pixel buffer and dimensions
 #[wasm_bindgen]
 pub struct World {
     width: u32,
     height: u32,
     pixel_buffer: Vec<u8>,
-    sprite_sheet: Vec<u8>,
+    sprite_sheet: SpriteSheet,
     character: Character,
 }
 
@@ -34,21 +23,11 @@ impl World {
     /// Create a new World instance
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
-        // Decode the embedded PNG sprite sheet
-        let img = ImageReader::new(std::io::Cursor::new(SPRITE_SHEET_DATA))
-            .with_guessed_format()
-            .expect("Failed to guess image format")
-            .decode()
-            .expect("Failed to decode sprite sheet");
-
-        // Convert to RGBA bytes
-        let sprite_sheet = img.to_rgba8().into_raw();
-
         World {
             width: WIDTH,
             height: HEIGHT,
             pixel_buffer: vec![0u8; (WIDTH * HEIGHT * 4) as usize],
-            sprite_sheet,
+            sprite_sheet: SpriteSheet::new(),
             character: Character::new(WIDTH, HEIGHT),
         }
     }
@@ -82,7 +61,6 @@ impl World {
             &self.sprite_sheet,
             self.width,
             self.height,
-            SPRITE_SHEET_WIDTH,
         );
     }
 }
