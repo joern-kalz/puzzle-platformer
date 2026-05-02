@@ -6,18 +6,18 @@ mod image;
 use character::Character;
 use image::Image;
 
-const WIDTH: u32 = 320;
-const HEIGHT: u32 = 240;
+const WIDTH: usize = 320;
+const HEIGHT: usize = 240;
 
 const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
-const SPRITE_SHEET_WIDTH: u32 = 360;
-const SPRITE_SHEET_HEIGHT: u32 = 60;
+const SPRITE_SHEET_WIDTH: usize = 360;
+const SPRITE_SHEET_HEIGHT: usize = 60;
 
 #[wasm_bindgen]
 pub struct World {
-    width: u32,
-    height: u32,
-    pixel_buffer: Vec<u8>,
+    width: usize,
+    height: usize,
+    screen: Image,
     sprite_sheet: Image,
     character: Character,
 }
@@ -30,41 +30,35 @@ impl World {
         World {
             width: WIDTH,
             height: HEIGHT,
-            pixel_buffer: vec![0u8; (WIDTH * HEIGHT * 4) as usize],
+            screen: Image::new(WIDTH, HEIGHT ),
             sprite_sheet: Image::new_from_asset(SPRITE_SHEET_DATA, SPRITE_SHEET_WIDTH, SPRITE_SHEET_HEIGHT),
             character: Character::new(WIDTH, HEIGHT),
         }
     }
 
     /// Get the width
-    pub fn get_width(&self) -> u32 {
+    pub fn get_width(&self) -> usize {
         self.width
     }
 
     /// Get the height
-    pub fn get_height(&self) -> u32 {
+    pub fn get_height(&self) -> usize {
         self.height
     }
 
-    /// Get pointer to the pixel buffer
     pub fn get_pixel_buffer_ptr(&self) -> *const u8 {
-        self.pixel_buffer.as_ptr()
+        self.screen.data.as_ptr()
     }
 
-    /// Update the pixel buffer with a new frame
     pub fn update_frame(&mut self, time: f64) {
-        // Clear pixel buffer first
-        self.pixel_buffer.fill(0);
+        self.screen.data.fill(0);
 
         // Update character sprite
         self.character.update(time);
 
-        // Draw character to pixel buffer
         self.character.draw(
-            &mut self.pixel_buffer,
+            &mut self.screen,
             &self.sprite_sheet,
-            self.width,
-            self.height,
         );
     }
 }
