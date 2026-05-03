@@ -34,16 +34,31 @@ impl Image {
 
     pub fn draw(
         &mut self,
-        x: i32,
-        y: i32,
+        mut x: i32,
+        mut y: i32,
         source: &Image,
-        source_x: i32,
-        source_y: i32,
-        width: i32,
-        height: i32,
+        mut source_x: i32,
+        mut source_y: i32,
+        mut width: i32,
+        mut height: i32,
     ) {
-        let mut src_line = (source_y * (source.width as i32) + source_x) * 4;
-        let mut dest_line = (y * (self.width as i32) + x) * 4;
+        if x < 0 {
+            source_x = source_x - x;
+            width = width + x;
+            x = 0;
+        }
+        if y < 0 {
+            source_y = source_y - y;
+            height = height + y;
+            y = 0;
+        }
+        let overflow_x = (x + width - self.width).max(0);
+        width = width - overflow_x;
+        let overflow_y = (y + height - self.height).max(0);
+        height = height - overflow_y;
+
+        let mut src_line = (source_y * (source.width) + source_x) * 4;
+        let mut dest_line = (y * (self.width) + x) * 4;
 
         for _ in 0..height {
             let mut src_index = src_line as usize;
@@ -59,13 +74,13 @@ impl Image {
                 dest_index += 4;
             }
 
-            src_line += source.width as i32 * 4;
-            dest_line += self.width as i32 * 4;
+            src_line += source.width * 4;
+            dest_line += self.width * 4;
         }
     }
 
     pub fn get_pixel(&self, x: i32, y: i32) -> [u8; 4] {
-        let index = (y * self.width as i32 + x) * 4;
+        let index = (y * self.width + x) * 4;
 
         if index < 0 || index >= self.data.len() as i32 {
             return [0, 0, 0, 0];
