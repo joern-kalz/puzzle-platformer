@@ -2,17 +2,23 @@ const SPRITE_WIDTH: i32 = 60;
 const SPRITE_HEIGHT: i32 = 60;
 const NUM_SPRITES: i32 = 6;
 
-const BASE_LEFT: i32 = 17;
-const BASE_RIGHT: i32 = 39;
-const BASE_Y: i32 = 49;
+const COLLIDER_LEFT: i32 = 17;
+const COLLIDER_RIGHT: i32 = 39;
+// const COLLIDER_TOP: i32 = 13;
+const COLLIDER_BOTTOM: i32 = 49;
 
 use crate::image::Image;
 
-/// Character struct containing position and sprite state
+pub enum Direction {
+    Left,
+    Right,
+}
+
 pub struct Character {
     pub dest_x: i32,
     pub dest_y: i32,
     pub sprite_index: i32,
+    pub direction: Direction,
 }
 
 impl Character {
@@ -22,13 +28,17 @@ impl Character {
             dest_x: screen_width / 2,
             dest_y: screen_height / 2,
             sprite_index: 0,
+            direction: Direction::Right,
         }
     }
 
     /// Update the sprite index based on time
     pub fn update(&mut self, screen: &Image, time: f64) {
         if self.is_on_ground(screen) {
-            self.dest_x += 1;
+            self.dest_x += match self.direction {
+                Direction::Left => -1,
+                Direction::Right => 1,
+            };
         } else {
             self.dest_y += 1;
         }
@@ -37,8 +47,8 @@ impl Character {
     }
 
     fn is_on_ground(&self, screen: &Image) -> bool {
-        for x in BASE_LEFT..=BASE_RIGHT {
-            if screen.get_pixel(self.dest_x + x, self.dest_y + BASE_Y)[3] > 0 {
+        for x in COLLIDER_LEFT..=COLLIDER_RIGHT {
+            if screen.get_pixel(self.dest_x + x, self.dest_y + COLLIDER_BOTTOM)[3] > 0 {
                 return true;
             }
         }
@@ -56,6 +66,7 @@ impl Character {
             0,
             SPRITE_WIDTH,
             SPRITE_HEIGHT,
+            matches!(self.direction, Direction::Left),
         );
     }
 }

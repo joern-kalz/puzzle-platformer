@@ -42,6 +42,7 @@ impl Image {
         mut source_y: i32,
         mut width: i32,
         mut height: i32,
+        flip_horizontal: bool,
     ) {
         if x < 0 {
             source_x = source_x - x;
@@ -63,7 +64,11 @@ impl Image {
 
         for _ in 0..height {
             let mut src_index = src_line as usize;
-            let mut dest_index = dest_line as usize;
+            let mut dest_index = if flip_horizontal {
+                dest_line + (width - 1) * 4
+            } else {
+                dest_line
+            } as usize;
 
             for _ in 0..width {
                 if source.data[src_index + 3] > 0 {
@@ -72,7 +77,12 @@ impl Image {
                 }
 
                 src_index += 4;
-                dest_index += 4;
+
+                if flip_horizontal {
+                    dest_index -= 4
+                } else {
+                    dest_index += 4
+                };
             }
 
             src_line += source.width * 4;
