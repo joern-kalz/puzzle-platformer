@@ -3,7 +3,7 @@ use image::ImageReader;
 pub struct Image {
     pub data: Vec<u8>,
     pub width: usize,
-    pub _height: usize,
+    pub height: usize,
 }
 
 impl Image {
@@ -11,7 +11,7 @@ impl Image {
         Image {
             data: vec![0; width * height * 4],
             width,
-            _height: height,
+            height: height,
         }
     }
 
@@ -25,10 +25,23 @@ impl Image {
         // Convert to RGBA bytes
         let data = data.to_rgba8().into_raw();
 
-        Image { data, width, _height: height }
+        Image {
+            data,
+            width,
+            height,
+        }
     }
 
-    pub fn draw(&mut self, x: usize, y: usize, source: &Image, source_x: usize, source_y: usize, width: usize, height: usize) {
+    pub fn draw(
+        &mut self,
+        x: usize,
+        y: usize,
+        source: &Image,
+        source_x: usize,
+        source_y: usize,
+        width: usize,
+        height: usize,
+    ) {
         let mut src_line = (source_y * source.width + source_x) * 4;
         let mut dest_line = (y * self.width + x) * 4;
 
@@ -37,8 +50,9 @@ impl Image {
             let mut dest_index = dest_line;
 
             for _ in 0..width {
-                if source.data[src_index + 3] > 0 { 
-                    self.data[dest_index..dest_index + 4].copy_from_slice(&source.data[src_index..src_index + 4]);
+                if source.data[src_index + 3] > 0 {
+                    self.data[dest_index..dest_index + 4]
+                        .copy_from_slice(&source.data[src_index..src_index + 4]);
                 }
 
                 src_index += 4;
