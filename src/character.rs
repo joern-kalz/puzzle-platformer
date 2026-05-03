@@ -7,6 +7,8 @@ const COLLIDER_RIGHT: i32 = 39;
 const COLLIDER_TOP: i32 = 13;
 const COLLIDER_BOTTOM: i32 = 49;
 
+const MAX_STEP_HEIGHT: i32 = 10;
+
 use crate::image::Image;
 
 pub enum Direction {
@@ -36,17 +38,24 @@ impl Character {
 
         if !self.is_on_ground(screen) {
             self.y += 1;
-        } else if self.is_colliding_with_wall(screen) {
-            self.direction = match self.direction {
-                Direction::Left => Direction::Right,
-                Direction::Right => Direction::Left,
-            };
-        } else {
-            self.x += match self.direction {
-                Direction::Left => -1,
-                Direction::Right => 1,
-            };
+            return;
         }
+
+        for offset in 0..MAX_STEP_HEIGHT {
+            if !self.is_colliding_with_wall(screen, offset) {
+                self.y -= offset;
+                self.x += match self.direction {
+                    Direction::Left => -1,
+                    Direction::Right => 1,
+                };
+                return;
+            }
+        }
+
+        self.direction = match self.direction {
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
+        };
     }
 
     fn is_on_ground(&self, screen: &Image) -> bool {
@@ -58,13 +67,13 @@ impl Character {
         false
     }
 
-    fn is_colliding_with_wall(&self, screen: &Image) -> bool {
+    fn is_colliding_with_wall(&self, screen: &Image, offset: i32) -> bool {
         let x = match self.direction {
             Direction::Left => self.x + SPRITE_WIDTH - COLLIDER_RIGHT,
             Direction::Right => self.x + COLLIDER_RIGHT,
         };
 
-        for y in (COLLIDER_TOP + self.y)..(COLLIDER_BOTTOM + self.y) {
+        for y in (COLLIDER_TOP + self.y - offset)..(COLLIDER_BOTTOM + self.y - offset) {
             if screen.get_pixel(x, y)[3] > 0 {
                 return true;
             }
