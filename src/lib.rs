@@ -56,7 +56,7 @@ impl World {
     pub fn update_frame(&mut self, time: f64) {
         self.screen.data.copy_from_slice(&self.background.data);
 
-        self.character.update(time);
+        self.character.update(&self.screen, time);
 
         self.character.draw(&mut self.screen, &self.sprite_sheet);
     }

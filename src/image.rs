@@ -63,4 +63,14 @@ impl Image {
             dest_line += self.width * 4;
         }
     }
+
+    pub fn get_pixel(&self, x: usize, y: usize) -> [u8; 4] {
+        let index = (y * self.width + x) * 4;
+        [
+            self.data[index],
+            self.data[index + 1],
+            self.data[index + 2],
+            self.data[index + 3],
+        ]
+    }
 }
