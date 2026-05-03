@@ -7,12 +7,12 @@ use character::Character;
 use image::Image;
 
 const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
-const SPRITE_SHEET_WIDTH: usize = 360;
-const SPRITE_SHEET_HEIGHT: usize = 60;
+const SPRITE_SHEET_WIDTH: i32 = 360;
+const SPRITE_SHEET_HEIGHT: i32 = 60;
 
 const LEVEL_DATA: &[u8] = include_bytes!("../assets/level.png");
-const LEVEL_WIDTH: usize = 400;
-const LEVEL_HEIGHT: usize = 400;
+const LEVEL_WIDTH: i32 = 400;
+const LEVEL_HEIGHT: i32 = 400;
 
 #[wasm_bindgen]
 pub struct World {
@@ -40,12 +40,12 @@ impl World {
     }
 
     /// Get the width
-    pub fn get_width(&self) -> usize {
+    pub fn get_width(&self) -> i32 {
         self.screen.width
     }
 
     /// Get the height
-    pub fn get_height(&self) -> usize {
+    pub fn get_height(&self) -> i32 {
         self.screen.height
     }
 

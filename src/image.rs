@@ -2,20 +2,20 @@ use image::ImageReader;
 
 pub struct Image {
     pub data: Vec<u8>,
-    pub width: usize,
-    pub height: usize,
+    pub width: i32,
+    pub height: i32,
 }
 
 impl Image {
-    pub fn new(width: usize, height: usize) -> Image {
+    pub fn new(width: i32, height: i32) -> Image {
         Image {
-            data: vec![0; width * height * 4],
+            data: vec![0; (width * height * 4) as usize],
             width,
             height: height,
         }
     }
 
-    pub fn new_from_asset(data: &[u8], width: usize, height: usize) -> Image {
+    pub fn new_from_asset(data: &[u8], width: i32, height: i32) -> Image {
         let data = ImageReader::new(std::io::Cursor::new(data))
             .with_guessed_format()
             .expect("Failed to guess image format")
@@ -34,20 +34,20 @@ impl Image {
 
     pub fn draw(
         &mut self,
-        x: usize,
-        y: usize,
+        x: i32,
+        y: i32,
         source: &Image,
-        source_x: usize,
-        source_y: usize,
-        width: usize,
-        height: usize,
+        source_x: i32,
+        source_y: i32,
+        width: i32,
+        height: i32,
     ) {
-        let mut src_line = (source_y * source.width + source_x) * 4;
-        let mut dest_line = (y * self.width + x) * 4;
+        let mut src_line = (source_y * (source.width as i32) + source_x) * 4;
+        let mut dest_line = (y * (self.width as i32) + x) * 4;
 
         for _ in 0..height {
-            let mut src_index = src_line;
-            let mut dest_index = dest_line;
+            let mut src_index = src_line as usize;
+            let mut dest_index = dest_line as usize;
 
             for _ in 0..width {
                 if source.data[src_index + 3] > 0 {
@@ -59,18 +59,23 @@ impl Image {
                 dest_index += 4;
             }
 
-            src_line += source.width * 4;
-            dest_line += self.width * 4;
+            src_line += source.width as i32 * 4;
+            dest_line += self.width as i32 * 4;
         }
     }
 
-    pub fn get_pixel(&self, x: usize, y: usize) -> [u8; 4] {
-        let index = (y * self.width + x) * 4;
+    pub fn get_pixel(&self, x: i32, y: i32) -> [u8; 4] {
+        let index = (y * self.width as i32 + x) * 4;
+
+        if index < 0 || index >= self.data.len() as i32 {
+            return [0, 0, 0, 0];
+        }
+
         [
-            self.data[index],
-            self.data[index + 1],
-            self.data[index + 2],
-            self.data[index + 3],
+            self.data[index as usize],
+            self.data[index as usize + 1],
+            self.data[index as usize + 2],
+            self.data[index as usize + 3],
         ]
     }
 }
