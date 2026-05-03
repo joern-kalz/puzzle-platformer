@@ -7,12 +7,8 @@ use character::Character;
 use image::Image;
 
 const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
-const SPRITE_SHEET_WIDTH: i32 = 360;
-const SPRITE_SHEET_HEIGHT: i32 = 60;
 
 const LEVEL_DATA: &[u8] = include_bytes!("../assets/level.png");
-const LEVEL_WIDTH: i32 = 400;
-const LEVEL_HEIGHT: i32 = 400;
 
 #[wasm_bindgen]
 pub struct World {
@@ -27,15 +23,13 @@ impl World {
     /// Create a new World instance
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
+        let background = Image::new_from_asset(LEVEL_DATA);
+
         World {
-            screen: Image::new(LEVEL_WIDTH, LEVEL_HEIGHT),
-            background: Image::new_from_asset(LEVEL_DATA, LEVEL_WIDTH, LEVEL_HEIGHT),
-            sprite_sheet: Image::new_from_asset(
-                SPRITE_SHEET_DATA,
-                SPRITE_SHEET_WIDTH,
-                SPRITE_SHEET_HEIGHT,
-            ),
-            character: Character::new(LEVEL_WIDTH, LEVEL_HEIGHT),
+            screen: Image::new(background.width, background.height),
+            character: Character::new(background.width, background.height),
+            background,
+            sprite_sheet: Image::new_from_asset(SPRITE_SHEET_DATA),
         }
     }
 
