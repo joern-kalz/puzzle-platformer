@@ -1,10 +1,13 @@
 use wasm_bindgen::prelude::*;
 
-mod character;
-mod image;
-
 use character::Character;
+use hud::Hud;
 use image::Image;
+
+mod action;
+mod character;
+mod hud;
+mod image;
 
 const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
 
@@ -16,11 +19,11 @@ pub struct World {
     background: Image,
     sprite_sheet: Image,
     character: Character,
+    hud: Hud,
 }
 
 #[wasm_bindgen]
 impl World {
-    /// Create a new World instance
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
         let background = Image::new_from_asset(LEVEL_DATA);
@@ -28,17 +31,16 @@ impl World {
         World {
             screen: Image::new(background.width, background.height),
             character: Character::new(background.width, background.height),
+            hud: Hud::new(background.width, background.height),
             background,
             sprite_sheet: Image::new_from_asset(SPRITE_SHEET_DATA),
         }
     }
 
-    /// Get the width
     pub fn get_width(&self) -> i32 {
         self.screen.width
     }
 
-    /// Get the height
     pub fn get_height(&self) -> i32 {
         self.screen.height
     }
@@ -49,10 +51,9 @@ impl World {
 
     pub fn update_frame(&mut self, time: f64) {
         self.screen.data.copy_from_slice(&self.background.data);
-
         self.character.update(&self.screen, time);
-
         self.character.draw(&mut self.screen, &self.sprite_sheet);
+        self.hud.draw(&mut self.screen, &self.sprite_sheet);
     }
 }
 
