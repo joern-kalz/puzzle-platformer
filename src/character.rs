@@ -9,7 +9,7 @@ const COLLIDER_BOTTOM: i32 = 49;
 
 const MAX_STEP_HEIGHT: i32 = 10;
 
-use crate::image::Image;
+use crate::image::{DrawParams, Image};
 
 pub enum Direction {
     Left,
@@ -84,15 +84,16 @@ impl Character {
 
     pub fn draw(&self, screen: &mut Image, sprite_sheet: &Image) {
         let sprite_x = self.sprite_index * SPRITE_WIDTH;
-        screen.draw(
-            self.x,
-            self.y,
-            sprite_sheet,
-            sprite_x,
-            0,
-            SPRITE_WIDTH,
-            SPRITE_HEIGHT,
-            matches!(self.direction, Direction::Left),
-        );
+        screen.draw(DrawParams {
+            x: self.x,
+            y: self.y,
+            source: sprite_sheet,
+            source_x: sprite_x,
+            source_y: 0,
+            width: SPRITE_WIDTH,
+            height: SPRITE_HEIGHT,
+            flip_horizontal: matches!(self.direction, Direction::Left),
+            flip_vertical: false,
+        });
     }
 }

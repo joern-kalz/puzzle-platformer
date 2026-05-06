@@ -1,5 +1,5 @@
 use crate::action::Action;
-use crate::image::Image;
+use crate::image::{DrawParams, Image};
 
 const SPRITE_WIDTH: i32 = 60;
 const SPRITE_HEIGHT: i32 = 60;
@@ -72,16 +72,17 @@ impl Hud {
         sprite: (i32, i32),
         flip: bool,
     ) {
-        screen.draw(
-            position.0,
-            position.1,
-            sprite_sheet,
-            sprite.0 * SPRITE_WIDTH,
-            sprite.1 * SPRITE_HEIGHT,
-            SPRITE_WIDTH,
-            SPRITE_HEIGHT,
-            flip,
-        );
+        screen.draw(DrawParams {
+            x: position.0,
+            y: position.1,
+            source: sprite_sheet,
+            source_x: sprite.0 * SPRITE_WIDTH,
+            source_y: sprite.1 * SPRITE_HEIGHT,
+            width: SPRITE_WIDTH,
+            height: SPRITE_HEIGHT,
+            flip_horizontal: flip,
+            flip_vertical: false,
+        });
     }
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {

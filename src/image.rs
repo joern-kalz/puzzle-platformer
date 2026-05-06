@@ -6,6 +6,18 @@ pub struct Image {
     pub height: i32,
 }
 
+pub struct DrawParams<'a> {
+    pub x: i32,
+    pub y: i32,
+    pub source: &'a Image,
+    pub source_x: i32,
+    pub source_y: i32,
+    pub width: i32,
+    pub height: i32,
+    pub flip_horizontal: bool,
+    pub flip_vertical: bool,
+}
+
 impl Image {
     pub fn new(width: i32, height: i32) -> Image {
         Image {
@@ -33,17 +45,53 @@ impl Image {
         }
     }
 
-    pub fn draw(
-        &mut self,
-        mut x: i32,
-        mut y: i32,
-        source: &Image,
-        mut source_x: i32,
-        mut source_y: i32,
-        mut width: i32,
-        mut height: i32,
-        flip_horizontal: bool,
-    ) {
+    pub fn draw(&mut self, params: DrawParams) {
+        let DrawParams {
+            x,
+            y,
+            source,
+            source_x,
+            source_y,
+            width,
+            height,
+            flip_horizontal,
+            flip_vertical,
+        } = self.clip(params);
+
+        let mut src_line = (source_y * (source.width) + source_x) * 4;
+        let mut dest_line = (y * self.width + x) * 4;
+        let mut dest_inc = 4;
+        let mut dest_line_inc = self.width * 4;
+
+        if flip_horizontal {
+            dest_line += (width - 1) * 4;
+            dest_inc = -4;
+        }
+        if flip_vertical {
+            dest_line += (height - 1) * self.width * 4;
+            dest_line_inc = -self.width * 4;
+        }
+
+        for _ in 0..height {
+            self.draw_line(dest_line, source, src_line, width, dest_inc);
+            src_line += source.width * 4;
+            dest_line += dest_line_inc;
+        }
+    }
+
+    fn clip<'a>(&mut self, params: DrawParams<'a>) -> DrawParams<'a> {
+        let DrawParams {
+            mut x,
+            mut y,
+            source,
+            mut source_x,
+            mut source_y,
+            mut width,
+            mut height,
+            flip_horizontal,
+            flip_vertical,
+        } = params;
+
         if x < 0 {
             source_x = source_x - x;
             width = width + x;
@@ -59,19 +107,16 @@ impl Image {
         let overflow_y = (y + height - self.height).max(0);
         height = height - overflow_y;
 
-        let mut src_line = (source_y * (source.width) + source_x) * 4;
-        let mut dest_line = (y * self.width + x) * 4;
-        let mut dest_inc = 4;
-
-        if flip_horizontal {
-            dest_line += (width - 1) * 4;
-            dest_inc = -4;
-        }
-
-        for _ in 0..height {
-            self.draw_line(dest_line, source, src_line, width, dest_inc);
-            src_line += source.width * 4;
-            dest_line += self.width * 4;
+        DrawParams {
+            x,
+            y,
+            source,
+            source_x,
+            source_y,
+            width,
+            height,
+            flip_horizontal,
+            flip_vertical,
         }
     }
 
