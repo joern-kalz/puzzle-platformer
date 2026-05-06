@@ -60,33 +60,43 @@ impl Image {
         height = height - overflow_y;
 
         let mut src_line = (source_y * (source.width) + source_x) * 4;
-        let mut dest_line = (y * (self.width) + x) * 4;
+        let mut dest_line = (y * self.width + x) * 4;
+        let mut dest_inc = 4;
+
+        if flip_horizontal {
+            dest_line += (width - 1) * 4;
+            dest_inc = -4;
+        }
 
         for _ in 0..height {
-            let mut src_index = src_line as usize;
-            let mut dest_index = if flip_horizontal {
-                dest_line + (width - 1) * 4
-            } else {
-                dest_line
-            } as usize;
-
-            for _ in 0..width {
-                if source.data[src_index + 3] > 0 {
-                    self.data[dest_index..dest_index + 4]
-                        .copy_from_slice(&source.data[src_index..src_index + 4]);
-                }
-
-                src_index += 4;
-
-                if flip_horizontal {
-                    dest_index -= 4
-                } else {
-                    dest_index += 4
-                };
-            }
-
+            self.draw_line(dest_line, source, src_line, width, dest_inc);
             src_line += source.width * 4;
             dest_line += self.width * 4;
+        }
+    }
+
+    fn draw_line(
+        &mut self,
+        dest_index: i32,
+        source: &Image,
+        src_index: i32,
+        width: i32,
+        dest_inc: i32,
+    ) {
+        let mut src_index = src_index;
+        let mut dest_index = dest_index;
+
+        for _ in 0..width {
+            self.draw_pixel(dest_index as usize, source, src_index as usize);
+            src_index += 4;
+            dest_index += dest_inc;
+        }
+    }
+
+    fn draw_pixel(&mut self, dest_index: usize, source: &Image, src_index: usize) {
+        if source.data[src_index + 3] > 0 {
+            let src = &source.data[src_index..src_index + 4];
+            self.data[dest_index..dest_index + 4].copy_from_slice(src);
         }
     }
 
