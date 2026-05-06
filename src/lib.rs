@@ -55,6 +55,10 @@ impl World {
         self.character.draw(&mut self.screen, &self.sprite_sheet);
         self.hud.draw(&mut self.screen, &self.sprite_sheet);
     }
+
+    pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
+        self.hud.on_hover(x, y)
+    }
 }
 
 impl Default for World {

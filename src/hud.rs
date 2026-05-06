@@ -4,6 +4,8 @@ use crate::image::Image;
 const SPRITE_WIDTH: i32 = 60;
 const SPRITE_HEIGHT: i32 = 60;
 const ACTIONS: [Action; 3] = [Action::Stairs, Action::Dig, Action::Jump];
+const BUTTON_SPRITE_POSITION: (i32, i32) = (4, 3);
+const HOVER_BUTTON_SPRITE_POSITION: (i32, i32) = (5, 3);
 
 struct Button {
     x: i32,
@@ -14,7 +16,7 @@ struct Button {
 
 pub struct Hud {
     buttons: Vec<Button>,
-    hover: Option<Button>,
+    hover: Option<Action>,
 }
 
 impl Hud {
@@ -41,26 +43,60 @@ impl Hud {
 
     pub fn draw(&self, screen: &mut Image, sprite_sheet: &Image) {
         for button in &self.buttons {
-            screen.draw(
-                button.x,
-                button.y,
+            self.draw_sprite(
+                screen,
                 sprite_sheet,
-                4 * SPRITE_WIDTH,
-                3 * SPRITE_HEIGHT,
-                SPRITE_WIDTH,
-                SPRITE_HEIGHT,
+                (button.x, button.y),
+                if self.hover == Some(button.action) {
+                    HOVER_BUTTON_SPRITE_POSITION
+                } else {
+                    BUTTON_SPRITE_POSITION
+                },
                 false,
             );
-            screen.draw(
-                button.x,
-                button.y,
+            self.draw_sprite(
+                screen,
                 sprite_sheet,
-                0,
-                button.sprite_index * SPRITE_HEIGHT,
-                SPRITE_WIDTH,
-                SPRITE_HEIGHT,
+                (button.x, button.y),
+                (0, button.sprite_index),
                 false,
             );
         }
+    }
+
+    fn draw_sprite(
+        &self,
+        screen: &mut Image,
+        sprite_sheet: &Image,
+        position: (i32, i32),
+        sprite: (i32, i32),
+        flip: bool,
+    ) {
+        screen.draw(
+            position.0,
+            position.1,
+            sprite_sheet,
+            sprite.0 * SPRITE_WIDTH,
+            sprite.1 * SPRITE_HEIGHT,
+            SPRITE_WIDTH,
+            SPRITE_HEIGHT,
+            flip,
+        );
+    }
+
+    pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
+        for button in &self.buttons {
+            if x >= button.x
+                && x < button.x + SPRITE_WIDTH
+                && y >= button.y
+                && y < button.y + SPRITE_HEIGHT
+            {
+                self.hover = Some(button.action);
+                return true;
+            }
+        }
+
+        self.hover = None;
+        return false;
     }
 }

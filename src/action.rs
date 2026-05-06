@@ -1,7 +1,7 @@
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Action {
     Stairs,
     Dig,
     Jump,
-    Walk,
+    _Walk,
 }
