@@ -58,24 +58,24 @@ impl Image {
             flip_vertical,
         } = self.clip(params);
 
-        let mut src_line = (source_y * (source.width) + source_x) * 4;
-        let mut dest_line = (y * self.width + x) * 4;
-        let mut dest_inc = 4;
-        let mut dest_line_inc = self.width * 4;
+        let mut src_index = (source_y * source.width + source_x) * 4;
+        let mut dest_index = (y * self.width + x) * 4;
+        let mut dest_step = 4;
+        let mut dest_line_step = self.width * 4;
 
         if flip_horizontal {
-            dest_line += (width - 1) * 4;
-            dest_inc = -4;
+            dest_index += (width - 1) * 4;
+            dest_step = -4;
         }
         if flip_vertical {
-            dest_line += (height - 1) * self.width * 4;
-            dest_line_inc = -self.width * 4;
+            dest_index += (height - 1) * self.width * 4;
+            dest_line_step = -self.width * 4;
         }
 
         for _ in 0..height {
-            self.draw_line(dest_line, source, src_line, width, dest_inc);
-            src_line += source.width * 4;
-            dest_line += dest_line_inc;
+            self.draw_line(dest_index, source, src_index, width, dest_step);
+            src_index += source.width * 4;
+            dest_index += dest_line_step;
         }
     }
 
@@ -126,7 +126,7 @@ impl Image {
         source: &Image,
         src_index: i32,
         width: i32,
-        dest_inc: i32,
+        dest_step: i32,
     ) {
         let mut src_index = src_index;
         let mut dest_index = dest_index;
@@ -134,7 +134,7 @@ impl Image {
         for _ in 0..width {
             self.draw_pixel(dest_index as usize, source, src_index as usize);
             src_index += 4;
-            dest_index += dest_inc;
+            dest_index += dest_step;
         }
     }
 
