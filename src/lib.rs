@@ -4,7 +4,6 @@ use character::Character;
 use hud::Hud;
 use image::Image;
 
-mod action;
 mod character;
 mod hud;
 mod image;

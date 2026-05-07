@@ -1,5 +1,11 @@
-use crate::action::Action;
 use crate::image::{DrawParams, Image};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum Action {
+    Stairs,
+    Dig,
+    Jump,
+}
 
 const SPRITE_WIDTH: i32 = 60;
 const SPRITE_HEIGHT: i32 = 60;
@@ -17,6 +23,7 @@ struct Button {
 pub struct Hud {
     buttons: Vec<Button>,
     hover: Option<Action>,
+    active: Action,
 }
 
 impl Hud {
@@ -32,13 +39,18 @@ impl Hud {
                 action: *action,
                 sprite_index: i as i32 + 1,
             });
-            x += SPRITE_WIDTH;
+            x += SPRITE_WIDTH + 10;
         }
 
         Self {
             buttons,
             hover: None,
+            active: Action::Stairs,
         }
+    }
+
+    pub fn get_active_action(&self) -> Action {
+        self.active
     }
 
     pub fn draw(&self, screen: &mut Image, sprite_sheet: &Image) {
@@ -52,7 +64,7 @@ impl Hud {
                 } else {
                     BUTTON_SPRITE_POSITION
                 },
-                false,
+                self.active == button.action,
             );
             self.draw_sprite(
                 screen,
@@ -81,7 +93,7 @@ impl Hud {
             width: SPRITE_WIDTH,
             height: SPRITE_HEIGHT,
             flip_horizontal: flip,
-            flip_vertical: false,
+            flip_vertical: flip,
         });
     }
 
