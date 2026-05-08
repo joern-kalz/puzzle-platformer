@@ -49,7 +49,7 @@ impl Hud {
         }
     }
 
-    pub fn get_active_action(&self) -> Action {
+    pub fn _get_active_action(&self) -> Action {
         self.active
     }
 
