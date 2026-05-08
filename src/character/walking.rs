@@ -1,8 +1,7 @@
 use crate::character::state::State;
-use crate::image::{DrawParams, Image};
+use crate::screen::{DrawParams, FrameSet, Screen};
 
 const SPRITE_WIDTH: i32 = 60;
-const SPRITE_HEIGHT: i32 = 60;
 const NUM_SPRITES: i32 = 6;
 
 const COLLIDER_LEFT: i32 = 17;
@@ -34,7 +33,7 @@ impl Walking {
         }
     }
 
-    fn is_on_ground(&self, screen: &Image) -> bool {
+    fn is_on_ground(&self, screen: &Screen) -> bool {
         for x in COLLIDER_LEFT..=COLLIDER_RIGHT {
             if screen.get_pixel(self.x + x, self.y + COLLIDER_BOTTOM)[3] > 0 {
                 return true;
@@ -43,7 +42,7 @@ impl Walking {
         false
     }
 
-    fn is_colliding_with_wall(&self, screen: &Image, offset: i32) -> bool {
+    fn is_colliding_with_wall(&self, screen: &Screen, offset: i32) -> bool {
         let x = match self.direction {
             Direction::Left => self.x + SPRITE_WIDTH - COLLIDER_RIGHT,
             Direction::Right => self.x + COLLIDER_RIGHT,
@@ -60,7 +59,7 @@ impl Walking {
 }
 
 impl State for Walking {
-    fn update(&mut self, screen: &Image, time: f64) -> Option<Box<dyn State>> {
+    fn update(&mut self, screen: &Screen, time: f64) -> Option<Box<dyn State>> {
         self.sprite_index = (time / 100.0) as i32 % NUM_SPRITES;
 
         if !self.is_on_ground(screen) {
@@ -86,18 +85,14 @@ impl State for Walking {
         None
     }
 
-    fn draw(&self, screen: &mut Image, sprite_sheet: &Image) {
-        let sprite_x = self.sprite_index * SPRITE_WIDTH;
+    fn draw(&self, screen: &mut Screen) {
         screen.draw(DrawParams {
             x: self.x,
             y: self.y,
-            source: sprite_sheet,
-            source_x: sprite_x,
-            source_y: 0,
-            width: SPRITE_WIDTH,
-            height: SPRITE_HEIGHT,
-            flip_horizontal: matches!(self.direction, Direction::Left),
-            flip_vertical: false,
+            frame_set: FrameSet::Walking,
+            frame_index: self.sprite_index,
+            mirror_x: matches!(self.direction, Direction::Left),
+            mirror_y: false,
         });
     }
 

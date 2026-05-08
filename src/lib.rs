@@ -2,21 +2,15 @@ use wasm_bindgen::prelude::*;
 
 use character::Character;
 use hud::Hud;
-use image::Image;
+use screen::Screen;
 
 mod character;
 mod hud;
-mod image;
-
-const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
-
-const LEVEL_DATA: &[u8] = include_bytes!("../assets/level.png");
+mod screen;
 
 #[wasm_bindgen]
 pub struct World {
-    screen: Image,
-    background: Image,
-    sprite_sheet: Image,
+    screen: Screen,
     character: Character,
     hud: Hud,
 }
@@ -25,34 +19,33 @@ pub struct World {
 impl World {
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
-        let background = Image::new_from_asset(LEVEL_DATA);
-
+        let screen = Screen::new();
+        let character = Character::new(200, 100);
+        let hud = Hud::new(screen.width(), screen.height());
         World {
-            screen: Image::new(background.width, background.height),
-            character: Character::new(background.width, background.height),
-            hud: Hud::new(background.width, background.height),
-            background,
-            sprite_sheet: Image::new_from_asset(SPRITE_SHEET_DATA),
+            screen,
+            character,
+            hud,
         }
     }
 
     pub fn get_width(&self) -> i32 {
-        self.screen.width
+        self.screen.width()
     }
 
     pub fn get_height(&self) -> i32 {
-        self.screen.height
+        self.screen.height()
     }
 
     pub fn get_pixel_buffer_ptr(&self) -> *const u8 {
-        self.screen.data.as_ptr()
+        self.screen.data()
     }
 
     pub fn update_frame(&mut self, time: f64) {
-        self.screen.data.copy_from_slice(&self.background.data);
+        self.screen.clear();
         self.character.update(&self.screen, time);
-        self.character.draw(&mut self.screen, &self.sprite_sheet);
-        self.hud.draw(&mut self.screen, &self.sprite_sheet);
+        self.character.draw(&mut self.screen);
+        self.hud.draw(&mut self.screen);
     }
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {

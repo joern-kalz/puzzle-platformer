@@ -1,4 +1,4 @@
-use crate::image::Image;
+use crate::screen::Screen;
 use state::State;
 use walking::Walking;
 
@@ -10,19 +10,19 @@ pub struct Character {
 }
 
 impl Character {
-    pub fn new(screen_width: i32, screen_height: i32) -> Character {
+    pub fn new(x: i32, y: i32) -> Character {
         Character {
-            state: Box::new(Walking::new(screen_width / 2, screen_height / 2)),
+            state: Box::new(Walking::new(x, y)),
         }
     }
 
-    pub fn update(&mut self, screen: &Image, time: f64) {
+    pub fn update(&mut self, screen: &Screen, time: f64) {
         if let Some(new_state) = self.state.update(screen, time) {
             self.state = new_state;
         }
     }
 
-    pub fn draw(&self, screen: &mut Image, sprite_sheet: &Image) {
-        self.state.draw(screen, sprite_sheet);
+    pub fn draw(&self, screen: &mut Screen) {
+        self.state.draw(screen);
     }
 }
