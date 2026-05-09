@@ -51,6 +51,10 @@ impl World {
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
         self.hud.on_hover(x, y)
     }
+
+    pub fn on_click(&mut self, x: i32, y: i32) {
+        self.hud.on_click(x, y);
+    }
 }
 
 impl Default for World {

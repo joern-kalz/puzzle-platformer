@@ -2,6 +2,7 @@ use crate::screen::{DrawParams, FrameSet, Screen};
 
 const BUTTON_WIDTH: i32 = 60;
 const BUTTON_HEIGHT: i32 = 60;
+const BUTTON_SPACING: i32 = 10;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Action {
@@ -18,6 +19,14 @@ struct Button {
     action: Action,
 }
 
+impl Button {
+    fn is_inside(&self, x: i32, y: i32) -> bool {
+        let x_inside = x >= self.x && x < self.x + BUTTON_WIDTH;
+        let y_inside = y >= self.y && y < self.y + BUTTON_HEIGHT;
+        return x_inside && y_inside;
+    }
+}
+
 pub struct Hud {
     buttons: Vec<Button>,
     hover: Option<Action>,
@@ -27,12 +36,14 @@ pub struct Hud {
 impl Hud {
     pub fn new(screen_width: i32, screen_height: i32) -> Self {
         let mut buttons = Vec::new();
-        let mut x = (screen_width - ACTIONS.len() as i32 * BUTTON_WIDTH) / 2;
+        let buttons_width = ACTIONS.len() as i32 * BUTTON_WIDTH;
+        let spacings_width = (ACTIONS.len() as i32 - 1) * BUTTON_SPACING;
+        let mut x = (screen_width - buttons_width - spacings_width) / 2;
         let y = screen_height - BUTTON_HEIGHT;
 
         for action in ACTIONS {
             buttons.push(Button { x, y, action });
-            x += BUTTON_WIDTH + 10;
+            x += BUTTON_WIDTH + BUTTON_SPACING;
         }
 
         Self {
@@ -91,10 +102,7 @@ impl Hud {
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
         for button in &self.buttons {
-            let x_inside = x >= button.x && x < button.x + BUTTON_WIDTH;
-            let y_inside = y >= button.y && y < button.y + BUTTON_HEIGHT;
-
-            if x_inside && y_inside {
+            if button.is_inside(x, y) && self.active != button.action {
                 self.hover = Some(button.action);
                 return true;
             }
@@ -102,5 +110,14 @@ impl Hud {
 
         self.hover = None;
         return false;
+    }
+
+    pub fn on_click(&mut self, x: i32, y: i32) {
+        for button in &self.buttons {
+            if button.is_inside(x, y) {
+                self.active = button.action;
+                return;
+            }
+        }
     }
 }
