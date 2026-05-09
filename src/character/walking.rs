@@ -1,19 +1,16 @@
+use crate::character::sprite::{
+    is_on_ground, COLLIDER_BOTTOM, COLLIDER_MARGIN_X, COLLIDER_TOP, SPRITE_WIDTH,
+};
 use crate::character::state::State;
 use crate::screen::{DrawParams, FrameSet, Screen};
 
-const SPRITE_WIDTH: i32 = 60;
 const NUM_SPRITES: i32 = 6;
-
-const COLLIDER_LEFT: i32 = 17;
-const COLLIDER_RIGHT: i32 = 39;
-const COLLIDER_TOP: i32 = 13;
-const COLLIDER_BOTTOM: i32 = 49;
-
 const MAX_STEP_HEIGHT: i32 = 10;
 
+#[derive(Clone, Copy)]
 pub enum Direction {
-    Left,
-    Right,
+    Left = -1,
+    Right = 1,
 }
 
 pub struct Walking {
@@ -33,23 +30,14 @@ impl Walking {
         }
     }
 
-    fn is_on_ground(&self, screen: &Screen) -> bool {
-        for x in COLLIDER_LEFT..=COLLIDER_RIGHT {
-            if screen.get_pixel(self.x + x, self.y + COLLIDER_BOTTOM)[3] > 0 {
-                return true;
-            }
-        }
-        false
-    }
-
     fn is_colliding_with_wall(&self, screen: &Screen, offset: i32) -> bool {
         let x = match self.direction {
-            Direction::Left => self.x + SPRITE_WIDTH - COLLIDER_RIGHT,
-            Direction::Right => self.x + COLLIDER_RIGHT,
+            Direction::Right => self.x + SPRITE_WIDTH - COLLIDER_MARGIN_X,
+            Direction::Left => self.x + COLLIDER_MARGIN_X,
         };
 
-        for y in (COLLIDER_TOP + self.y - offset)..(COLLIDER_BOTTOM + self.y - offset) {
-            if screen.get_pixel(x, y)[3] > 0 {
+        for y in COLLIDER_TOP..COLLIDER_BOTTOM {
+            if screen.get_pixel(x, y + self.y - offset)[3] > 0 {
                 return true;
             }
         }
@@ -62,7 +50,7 @@ impl State for Walking {
     fn update(&mut self, screen: &Screen, time: f64) -> Option<Box<dyn State>> {
         self.sprite_index = (time / 100.0) as i32 % NUM_SPRITES;
 
-        if !self.is_on_ground(screen) {
+        if !is_on_ground(self.x, self.y, screen) {
             self.y += 1;
             return None;
         }
@@ -70,10 +58,7 @@ impl State for Walking {
         for offset in 0..MAX_STEP_HEIGHT {
             if !self.is_colliding_with_wall(screen, offset) {
                 self.y -= offset;
-                self.x += match self.direction {
-                    Direction::Left => -1,
-                    Direction::Right => 1,
-                };
+                self.x += self.direction as i32;
                 return None;
             }
         }

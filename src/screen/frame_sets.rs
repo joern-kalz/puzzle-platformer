@@ -6,6 +6,7 @@ pub enum FrameSet {
     ButtonNormal = 3,
     ButtonHovered = 5,
     ButtonPressed = 6,
+    _Stone = 7,
 }
 
 pub const POSITIONS: &[&[(u32, u32, u32, u32)]] = &[
@@ -41,4 +42,5 @@ pub const POSITIONS: &[&[(u32, u32, u32, u32)]] = &[
     ],
     &[(240, 180, 60, 60)],
     &[(300, 180, 60, 60)],
+    &[(0, 240, 16, 6)],
 ];

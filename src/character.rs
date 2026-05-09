@@ -2,6 +2,7 @@ use crate::screen::Screen;
 use state::State;
 use walking::Walking;
 
+mod sprite;
 mod state;
 mod walking;
 
