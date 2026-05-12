@@ -33,6 +33,15 @@ impl Sprite {
         false
     }
 
+    pub fn is_in_world(&self, background: &impl Background) -> bool {
+        let left = self.x - COLLIDER_WIDTH / 2;
+        let right = self.x + COLLIDER_WIDTH / 2;
+        let top = self.y - COLLIDER_HEIGHT;
+        let bottom = self.y;
+
+        right >= 0 || left < background.width() || bottom >= 0 || top < background.height()
+    }
+
     pub fn is_inside(&self, x: i32, y: i32) -> bool {
         let left = self.x - COLLIDER_WIDTH / 2;
         let right = self.x + COLLIDER_WIDTH / 2;

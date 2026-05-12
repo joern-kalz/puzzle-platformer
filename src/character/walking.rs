@@ -13,6 +13,11 @@ pub struct Walking {
     frame_index: i32,
 }
 
+pub enum WalkingResult {
+    None,
+    Dead,
+}
+
 impl Walking {
     pub fn new(sprite: Sprite) -> Self {
         Walking {
@@ -21,19 +26,23 @@ impl Walking {
         }
     }
 
-    pub fn update(&mut self, background: &impl Background) {
+    pub fn update(&mut self, background: &impl Background) -> WalkingResult {
         self.frame_index = (self.frame_index + 1) % (NUM_SPRITES * 4);
+
+        if !self.sprite.is_in_world(background) {
+            return WalkingResult::Dead;
+        }
 
         if !self.sprite.is_on_ground(background) {
             self.sprite.y += 1;
-            return;
+            return WalkingResult::None;
         }
 
         for offset in 0..MAX_STEP_HEIGHT {
             if !self.is_colliding_with_wall(background, offset) {
                 self.sprite.y -= offset;
                 self.sprite.x += self.sprite.direction as i32;
-                return;
+                return WalkingResult::None;
             }
         }
 
@@ -41,6 +50,8 @@ impl Walking {
             Direction::Left => Direction::Right,
             Direction::Right => Direction::Left,
         };
+
+        WalkingResult::None
     }
 
     fn is_colliding_with_wall(&self, background: &impl Background, offset: i32) -> bool {

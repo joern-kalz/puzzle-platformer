@@ -16,6 +16,8 @@ pub trait Buffer {
 pub trait Background {
     fn draw(&mut self, params: DrawParams);
     fn get_pixel(&self, x: i32, y: i32) -> Rgba<u8>;
+    fn width(&self) -> i32;
+    fn height(&self) -> i32;
 }
 
 pub struct Screen {
@@ -95,6 +97,14 @@ impl Background for Screen {
         }
 
         self.background.get_pixel(x as u32, y as u32).clone()
+    }
+
+    fn width(&self) -> i32 {
+        self.background.width() as i32
+    }
+
+    fn height(&self) -> i32 {
+        self.background.height() as i32
     }
 }
 

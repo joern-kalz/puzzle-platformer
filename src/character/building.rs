@@ -10,30 +10,18 @@ const STONE_HEIGHT: i32 = 6;
 const STONE_X: i32 = 8;
 const BASE_Y: i32 = 49;
 const SPRITE_WIDTH: i32 = 60;
-
-use wasm_bindgen::prelude::*;
-
-// Import 'console.log' from JavaScript
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-
-    #[wasm_bindgen(js_namespace = console, js_name = log)]
-    fn log_u32(a: u32);
-
-    #[wasm_bindgen(js_namespace = console, js_name = log)]
-    fn log_many(a: i32, b: i32);
-}
+const STONES_LIMIT: i32 = 5;
 
 pub struct Building {
     sprite: Sprite,
     frame_index: i32,
+    stone_counter: i32,
 }
 
-pub enum UpdateResult {
+pub enum BuildingResult {
     None,
-    SwitchToWalking(Sprite),
+    Walking(Sprite),
+    Dead,
 }
 
 impl Building {
@@ -41,16 +29,21 @@ impl Building {
         Building {
             sprite,
             frame_index: 0,
+            stone_counter: 0,
         }
     }
 
-    pub fn update(&mut self, background: &mut impl Background) -> UpdateResult {
-        if !self.sprite.is_on_ground(background) {
-            return UpdateResult::SwitchToWalking(self.sprite);
+    pub fn update(&mut self, background: &mut impl Background) -> BuildingResult {
+        if !self.sprite.is_in_world(background) {
+            return BuildingResult::Dead;
         }
 
-        if self.is_colliding_with_wall(background) {
-            return UpdateResult::SwitchToWalking(self.sprite);
+        if !self.sprite.is_on_ground(background) {
+            return BuildingResult::Walking(self.sprite);
+        }
+
+        if self.is_colliding_with_wall(background) || self.stone_counter >= STONES_LIMIT {
+            return BuildingResult::Walking(self.sprite);
         }
 
         self.frame_index += 1;
@@ -71,15 +64,15 @@ impl Building {
                 self.frame_index = 0;
                 self.sprite.x += STEP_WIDTH * self.sprite.direction as i32;
                 self.sprite.y -= STONE_HEIGHT;
+                self.stone_counter += 1;
             }
             _ => (),
         }
 
-        return UpdateResult::None;
+        return BuildingResult::None;
     }
 
     fn is_colliding_with_wall(&self, background: &impl Background) -> bool {
-        log_many(self.sprite.x, self.sprite.y);
         let x = self.sprite.x + STEP_WIDTH * self.sprite.direction as i32;
         let y = self.sprite.y - STONE_HEIGHT;
         let left = x - COLLIDER_WIDTH / 2;
@@ -90,7 +83,6 @@ impl Building {
         for x in left..=right {
             for y in top..bottom {
                 if background.get_pixel(x, y).alpha() > 0 {
-                    log_many(x, y);
                     return true;
                 }
             }
