@@ -4,6 +4,8 @@ use character::Character;
 use hud::Hud;
 use screen::Screen;
 
+use crate::character::Action;
+
 mod character;
 mod hud;
 mod screen;
@@ -20,7 +22,7 @@ impl World {
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
         let screen = Screen::new();
-        let character = Character::new(200, 100);
+        let character = Character::new(200, 300);
         let hud = Hud::new(screen.width(), screen.height());
         World {
             screen,
@@ -41,19 +43,23 @@ impl World {
         self.screen.data()
     }
 
-    pub fn update_frame(&mut self, time: f64) {
+    pub fn update_frame(&mut self, _time: f64) {
         self.screen.clear();
-        self.character.update(&self.screen, time);
+        self.character.update(&mut self.screen);
         self.character.draw(&mut self.screen);
         self.hud.draw(&mut self.screen);
     }
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
-        self.hud.on_hover(x, y)
+        self.hud.is_inside(x, y) || self.character.is_inside(x, y)
     }
 
     pub fn on_click(&mut self, x: i32, y: i32) {
-        self.hud.on_click(x, y);
+        if self.hud.is_inside(x, y) {
+            self.hud.on_click(x, y);
+        } else if self.character.is_inside(x, y) {
+            self.character.perform(Action::Stairs);
+        }
     }
 }
 

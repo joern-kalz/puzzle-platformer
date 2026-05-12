@@ -1,29 +1,73 @@
-use crate::screen::Screen;
-use state::State;
+use building::Building;
 use walking::Walking;
 
+use crate::screen::{Background, Buffer};
+
+mod building;
 mod sprite;
-mod state;
 mod walking;
 
+enum State {
+    Walking(Walking),
+    Building(Building),
+}
+
 pub struct Character {
-    state: Box<dyn State>,
+    state: State,
+}
+
+pub enum Action {
+    Stairs,
 }
 
 impl Character {
     pub fn new(x: i32, y: i32) -> Character {
         Character {
-            state: Box::new(Walking::new(x, y)),
+            state: State::Walking(Walking::new(sprite::Sprite {
+                x,
+                y,
+                direction: sprite::Direction::Right,
+            })),
         }
     }
 
-    pub fn update(&mut self, screen: &Screen, time: f64) {
-        if let Some(new_state) = self.state.update(screen, time) {
-            self.state = new_state;
+    pub fn update(&mut self, background: &mut impl Background) {
+        match &mut self.state {
+            State::Walking(walking) => walking.update(background),
+            State::Building(building) => match building.update(background) {
+                building::UpdateResult::None => (),
+                building::UpdateResult::SwitchToWalking(sprite) => {
+                    self.state = State::Walking(Walking::new(sprite))
+                }
+            },
+        };
+    }
+
+    pub fn draw(&self, buffer: &mut impl Buffer) {
+        match &self.state {
+            State::Walking(walking) => walking.draw(buffer),
+            State::Building(building) => building.draw(buffer),
         }
     }
 
-    pub fn draw(&self, screen: &mut Screen) {
-        self.state.draw(screen);
+    pub fn is_inside(&self, x: i32, y: i32) -> bool {
+        self.get_sprite().is_inside(x, y)
+    }
+
+    pub fn perform(&mut self, action: Action) {
+        let sprite = self.get_sprite();
+
+        match action {
+            Action::Stairs => {
+                self.state = State::Building(Building::new(sprite));
+            }
+        }
+    }
+
+    fn get_sprite(&self) -> sprite::Sprite {
+        match &self.state {
+            State::Walking(walking) => walking.get_sprite(),
+            State::Building(building) => building.get_sprite(),
+        }
     }
 }

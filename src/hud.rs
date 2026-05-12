@@ -1,4 +1,4 @@
-use crate::screen::{DrawParams, FrameSet, Screen};
+use crate::screen::{Buffer, DrawParams, FrameSet};
 
 const BUTTON_WIDTH: i32 = 60;
 const BUTTON_HEIGHT: i32 = 60;
@@ -57,14 +57,14 @@ impl Hud {
         self.active
     }
 
-    pub fn draw(&self, screen: &mut Screen) {
+    pub fn draw(&self, screen: &mut impl Buffer) {
         for button in &self.buttons {
             self.draw_background(screen, button);
             self.draw_icon(screen, button);
         }
     }
 
-    fn draw_background(&self, screen: &mut Screen, button: &Button) {
+    fn draw_background(&self, screen: &mut impl Buffer, button: &Button) {
         let frame_set = if button.action == self.active {
             FrameSet::ButtonPressed
         } else if Some(button.action) == self.hover {
@@ -83,7 +83,7 @@ impl Hud {
         });
     }
 
-    fn draw_icon(&self, screen: &mut Screen, button: &Button) {
+    fn draw_icon(&self, screen: &mut impl Buffer, button: &Button) {
         let frame_set = match button.action {
             Action::Stairs => FrameSet::Building,
             Action::Dig => FrameSet::Digging,
@@ -100,7 +100,7 @@ impl Hud {
         });
     }
 
-    pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
+    pub fn is_inside(&mut self, x: i32, y: i32) -> bool {
         for button in &self.buttons {
             if button.is_inside(x, y) && self.active != button.action {
                 self.hover = Some(button.action);
