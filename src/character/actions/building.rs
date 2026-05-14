@@ -1,6 +1,7 @@
 use image::Pixel;
 
-use super::sprite::{Direction, Sprite, COLLIDER_HEIGHT, COLLIDER_WIDTH};
+use super::super::sprite::{Direction, Sprite, COLLIDER_HEIGHT, COLLIDER_WIDTH};
+use super::super::update_result::UpdateResult;
 use crate::screen::{Background, Buffer, DrawParams, FrameSet};
 
 const UPDATES_PER_FRAME: i32 = 4;
@@ -18,12 +19,6 @@ pub struct Building {
     stone_counter: i32,
 }
 
-pub enum BuildingResult {
-    None,
-    Walking(Sprite),
-    Dead,
-}
-
 impl Building {
     pub fn new(sprite: Sprite) -> Self {
         Building {
@@ -33,17 +28,17 @@ impl Building {
         }
     }
 
-    pub fn update(&mut self, background: &mut impl Background) -> BuildingResult {
+    pub fn update(&mut self, background: &mut impl Background) -> Option<UpdateResult> {
         if !self.sprite.is_in_world(background) {
-            return BuildingResult::Dead;
+            return Some(UpdateResult::Dead);
         }
 
         if !self.sprite.is_on_ground(background) {
-            return BuildingResult::Walking(self.sprite);
+            return Some(UpdateResult::Walking(self.sprite));
         }
 
         if self.is_colliding_with_wall(background) || self.stone_counter >= STONES_LIMIT {
-            return BuildingResult::Walking(self.sprite);
+            return Some(UpdateResult::Walking(self.sprite));
         }
 
         self.frame_index += 1;
@@ -69,7 +64,7 @@ impl Building {
             _ => (),
         }
 
-        return BuildingResult::None;
+        None
     }
 
     fn is_colliding_with_wall(&self, background: &impl Background) -> bool {

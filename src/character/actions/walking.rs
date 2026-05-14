@@ -1,6 +1,7 @@
 use image::Pixel;
 
-use super::sprite::{Direction, Sprite, COLLIDER_HEIGHT, COLLIDER_WIDTH};
+use super::super::sprite::{Direction, Sprite, COLLIDER_HEIGHT, COLLIDER_WIDTH};
+use super::super::update_result::UpdateResult;
 use crate::screen::{Background, Buffer, FrameSet};
 
 const NUM_SPRITES: i32 = 6;
@@ -13,11 +14,6 @@ pub struct Walking {
     frame_index: i32,
 }
 
-pub enum WalkingResult {
-    None,
-    Dead,
-}
-
 impl Walking {
     pub fn new(sprite: Sprite) -> Self {
         Walking {
@@ -26,23 +22,23 @@ impl Walking {
         }
     }
 
-    pub fn update(&mut self, background: &impl Background) -> WalkingResult {
+    pub fn update(&mut self, background: &impl Background) -> Option<UpdateResult> {
         self.frame_index = (self.frame_index + 1) % (NUM_SPRITES * 4);
 
         if !self.sprite.is_in_world(background) {
-            return WalkingResult::Dead;
+            return Some(UpdateResult::Dead);
         }
 
         if !self.sprite.is_on_ground(background) {
             self.sprite.y += 1;
-            return WalkingResult::None;
+            return None;
         }
 
         for offset in 0..MAX_STEP_HEIGHT {
             if !self.is_colliding_with_wall(background, offset) {
                 self.sprite.y -= offset;
                 self.sprite.x += self.sprite.direction as i32;
-                return WalkingResult::None;
+                return None;
             }
         }
 
@@ -51,7 +47,7 @@ impl Walking {
             Direction::Right => Direction::Left,
         };
 
-        WalkingResult::None
+        None
     }
 
     fn is_colliding_with_wall(&self, background: &impl Background, offset: i32) -> bool {

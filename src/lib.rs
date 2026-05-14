@@ -1,10 +1,8 @@
 use wasm_bindgen::prelude::*;
 
-use character::Character;
-use hud::Hud;
+use character::{Action, Character};
+use hud::{ActionButton, Hud};
 use screen::Screen;
-
-use crate::character::Action;
 
 mod character;
 mod hud;
@@ -58,7 +56,11 @@ impl World {
         if self.hud.is_inside(x, y) {
             self.hud.on_click(x, y);
         } else if self.character.is_inside(x, y) {
-            self.character.perform(Action::Stairs);
+            match self.hud.get_active_action() {
+                ActionButton::Build => self.character.perform(Action::Build),
+                ActionButton::Dig => self.character.perform(Action::Dig),
+                ActionButton::Jump => self.character.perform(Action::Jump),
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ pub trait Buffer {
 pub trait Background {
     fn draw(&mut self, params: DrawParams);
     fn get_pixel(&self, x: i32, y: i32) -> Rgba<u8>;
+    fn erase(&mut self, x: i32, y: i32, width: i32, height: i32);
     fn width(&self) -> i32;
     fn height(&self) -> i32;
 }
@@ -97,6 +98,21 @@ impl Background for Screen {
         }
 
         self.background.get_pixel(x as u32, y as u32).clone()
+    }
+
+    fn erase(&mut self, x: i32, y: i32, width: i32, height: i32) {
+        for x in x..x + width {
+            for y in y..y + height {
+                if x >= 0
+                    && x < self.background.width() as i32
+                    && y >= 0
+                    && y < self.background.height() as i32
+                {
+                    self.background
+                        .put_pixel(x as u32, y as u32, Rgba([0, 0, 0, 0]));
+                }
+            }
+        }
     }
 
     fn width(&self) -> i32 {

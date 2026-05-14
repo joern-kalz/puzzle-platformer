@@ -1,19 +1,16 @@
-use self::sprite::{Direction, Sprite};
-use building::{Building, BuildingResult};
-use walking::Walking;
+use crate::screen::{Background, Buffer};
+use actions::{Building, Digging, Walking};
+use sprite::{Direction, Sprite};
+use update_result::UpdateResult;
 
-use crate::{
-    character::walking::WalkingResult,
-    screen::{Background, Buffer},
-};
-
-mod building;
+mod actions;
 mod sprite;
-mod walking;
+mod update_result;
 
 enum State {
     Walking(Walking),
     Building(Building),
+    Digging(Digging),
     Dead,
 }
 
@@ -22,7 +19,9 @@ pub struct Character {
 }
 
 pub enum Action {
-    Stairs,
+    Build,
+    Dig,
+    Jump,
 }
 
 impl Character {
@@ -37,30 +36,26 @@ impl Character {
     }
 
     pub fn update(&mut self, background: &mut impl Background) {
-        match &mut self.state {
-            State::Walking(walking) => match walking.update(background) {
-                WalkingResult::None => (),
-                WalkingResult::Dead => {
-                    self.state = State::Dead;
-                }
-            },
-            State::Building(building) => match building.update(background) {
-                BuildingResult::None => (),
-                BuildingResult::Walking(sprite) => {
-                    self.state = State::Walking(Walking::new(sprite))
-                }
-                BuildingResult::Dead => {
-                    self.state = State::Dead;
-                }
-            },
-            State::Dead => (),
+        let result = match &mut self.state {
+            State::Walking(walking) => walking.update(background),
+            State::Building(building) => building.update(background),
+            State::Digging(digging) => digging.update(background),
+            State::Dead => None,
         };
+
+        if let Some(result) = result {
+            self.state = match result {
+                UpdateResult::Walking(sprite) => State::Walking(Walking::new(sprite)),
+                UpdateResult::Dead => State::Dead,
+            };
+        }
     }
 
     pub fn draw(&self, buffer: &mut impl Buffer) {
         match &self.state {
             State::Walking(walking) => walking.draw(buffer),
             State::Building(building) => building.draw(buffer),
+            State::Digging(digging) => digging.draw(buffer),
             State::Dead => (),
         }
     }
@@ -72,8 +67,14 @@ impl Character {
     pub fn perform(&mut self, action: Action) {
         if let Some(sprite) = self.get_sprite() {
             match action {
-                Action::Stairs => {
+                Action::Build => {
                     self.state = State::Building(Building::new(sprite));
+                }
+                Action::Dig => {
+                    self.state = State::Digging(Digging::new(sprite));
+                }
+                Action::Jump => {
+                    // Handle jump action
                 }
             }
         }
@@ -83,6 +84,7 @@ impl Character {
         match &self.state {
             State::Walking(walking) => Some(walking.get_sprite()),
             State::Building(building) => Some(building.get_sprite()),
+            State::Digging(digging) => Some(digging.get_sprite()),
             State::Dead => None,
         }
     }

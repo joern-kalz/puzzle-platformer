@@ -5,18 +5,19 @@ const BUTTON_HEIGHT: i32 = 60;
 const BUTTON_SPACING: i32 = 10;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum Action {
-    Stairs,
+pub enum ActionButton {
+    Build,
     Dig,
     Jump,
 }
 
-const ACTIONS: [Action; 3] = [Action::Stairs, Action::Dig, Action::Jump];
+const ACTION_BUTTONS: [ActionButton; 3] =
+    [ActionButton::Build, ActionButton::Dig, ActionButton::Jump];
 
 struct Button {
     x: i32,
     y: i32,
-    action: Action,
+    action: ActionButton,
 }
 
 impl Button {
@@ -29,19 +30,19 @@ impl Button {
 
 pub struct Hud {
     buttons: Vec<Button>,
-    hover: Option<Action>,
-    active: Action,
+    hover: Option<ActionButton>,
+    active: ActionButton,
 }
 
 impl Hud {
     pub fn new(screen_width: i32, screen_height: i32) -> Self {
         let mut buttons = Vec::new();
-        let buttons_width = ACTIONS.len() as i32 * BUTTON_WIDTH;
-        let spacings_width = (ACTIONS.len() as i32 - 1) * BUTTON_SPACING;
+        let buttons_width = ACTION_BUTTONS.len() as i32 * BUTTON_WIDTH;
+        let spacings_width = (ACTION_BUTTONS.len() as i32 - 1) * BUTTON_SPACING;
         let mut x = (screen_width - buttons_width - spacings_width) / 2;
         let y = screen_height - BUTTON_HEIGHT;
 
-        for action in ACTIONS {
+        for action in ACTION_BUTTONS {
             buttons.push(Button { x, y, action });
             x += BUTTON_WIDTH + BUTTON_SPACING;
         }
@@ -49,11 +50,11 @@ impl Hud {
         Self {
             buttons,
             hover: None,
-            active: Action::Stairs,
+            active: ActionButton::Build,
         }
     }
 
-    pub fn _get_active_action(&self) -> Action {
+    pub fn get_active_action(&self) -> ActionButton {
         self.active
     }
 
@@ -85,9 +86,9 @@ impl Hud {
 
     fn draw_icon(&self, screen: &mut impl Buffer, button: &Button) {
         let frame_set = match button.action {
-            Action::Stairs => FrameSet::Building,
-            Action::Dig => FrameSet::Digging,
-            Action::Jump => FrameSet::Jumping,
+            ActionButton::Build => FrameSet::Building,
+            ActionButton::Dig => FrameSet::Digging,
+            ActionButton::Jump => FrameSet::Jumping,
         };
 
         screen.draw(DrawParams {
