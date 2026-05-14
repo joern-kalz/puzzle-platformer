@@ -1,5 +1,5 @@
 use crate::screen::{Background, Buffer};
-use actions::{Building, Digging, Walking};
+use actions::{Building, Digging, Jumping, Walking};
 use sprite::{Direction, Sprite};
 use update_result::UpdateResult;
 
@@ -11,6 +11,7 @@ enum State {
     Walking(Walking),
     Building(Building),
     Digging(Digging),
+    Jumping(Jumping),
     Dead,
 }
 
@@ -40,6 +41,7 @@ impl Character {
             State::Walking(walking) => walking.update(background),
             State::Building(building) => building.update(background),
             State::Digging(digging) => digging.update(background),
+            State::Jumping(jumping) => jumping.update(background),
             State::Dead => None,
         };
 
@@ -56,6 +58,7 @@ impl Character {
             State::Walking(walking) => walking.draw(buffer),
             State::Building(building) => building.draw(buffer),
             State::Digging(digging) => digging.draw(buffer),
+            State::Jumping(jumping) => jumping.draw(buffer),
             State::Dead => (),
         }
     }
@@ -74,7 +77,7 @@ impl Character {
                     self.state = State::Digging(Digging::new(sprite));
                 }
                 Action::Jump => {
-                    // Handle jump action
+                    self.state = State::Jumping(Jumping::new(sprite));
                 }
             }
         }
@@ -85,6 +88,7 @@ impl Character {
             State::Walking(walking) => Some(walking.get_sprite()),
             State::Building(building) => Some(building.get_sprite()),
             State::Digging(digging) => Some(digging.get_sprite()),
+            State::Jumping(jumping) => Some(jumping.get_sprite()),
             State::Dead => None,
         }
     }

@@ -8,11 +8,14 @@ mod character;
 mod hud;
 mod screen;
 
+const FRAME_DURATION_IN_MS: f64 = 1000.0 / 30.0;
+
 #[wasm_bindgen]
 pub struct World {
     screen: Screen,
     character: Character,
     hud: Hud,
+    last_update_time: f64,
 }
 
 #[wasm_bindgen]
@@ -26,6 +29,7 @@ impl World {
             screen,
             character,
             hud,
+            last_update_time: 0.0,
         }
     }
 
@@ -41,7 +45,12 @@ impl World {
         self.screen.data()
     }
 
-    pub fn update_frame(&mut self, _time: f64) {
+    pub fn update_frame(&mut self, time_in_ms: f64) {
+        if time_in_ms - self.last_update_time < FRAME_DURATION_IN_MS {
+            return;
+        }
+
+        self.last_update_time = time_in_ms;
         self.screen.clear();
         self.character.update(&mut self.screen);
         self.character.draw(&mut self.screen);

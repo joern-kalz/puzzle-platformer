@@ -23,7 +23,7 @@ impl Walking {
     }
 
     pub fn update(&mut self, background: &impl Background) -> Option<UpdateResult> {
-        self.frame_index = (self.frame_index + 1) % (NUM_SPRITES * 4);
+        self.frame_index = (self.frame_index + 1) % (NUM_SPRITES * 2);
 
         if !self.sprite.is_in_world(background) {
             return Some(UpdateResult::Dead);
@@ -37,7 +37,7 @@ impl Walking {
         for offset in 0..MAX_STEP_HEIGHT {
             if !self.is_colliding_with_wall(background, offset) {
                 self.sprite.y -= offset;
-                self.sprite.x += self.sprite.direction as i32;
+                self.sprite.x += 2 * self.sprite.direction as i32;
                 return None;
             }
         }
@@ -75,7 +75,7 @@ impl Walking {
         self.sprite.draw(
             screen,
             FrameSet::Walking,
-            self.frame_index / 4,
+            self.frame_index / 2,
             -SPRITE_WIDTH / 2,
             -BASE_Y,
         );
