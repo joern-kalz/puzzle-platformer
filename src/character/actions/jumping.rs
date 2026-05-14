@@ -1,4 +1,4 @@
-use super::super::sprite::{Sprite, COLLIDER_HEIGHT, COLLIDER_WIDTH};
+use super::super::sprite::Sprite;
 use super::super::update_result::UpdateResult;
 use crate::screen::{Background, Buffer, FrameSet};
 
@@ -42,10 +42,10 @@ impl Jumping {
 
     fn erase(&mut self, background: &mut impl Background) {
         background.erase(
-            self.sprite.x - COLLIDER_WIDTH / 2,
-            self.sprite.y - COLLIDER_HEIGHT,
-            COLLIDER_WIDTH,
-            COLLIDER_HEIGHT,
+            self.sprite.left(),
+            self.sprite.top(),
+            self.sprite.width(),
+            self.sprite.height(),
         );
     }
 

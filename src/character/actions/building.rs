@@ -1,10 +1,9 @@
 use image::Pixel;
 
-use super::super::sprite::{Direction, Sprite, COLLIDER_HEIGHT, COLLIDER_WIDTH};
+use super::super::sprite::{Direction, Sprite};
 use super::super::update_result::UpdateResult;
 use crate::screen::{Background, Buffer, DrawParams, FrameSet};
 
-const UPDATES_PER_FRAME: i32 = 4;
 const STEP_WIDTH: i32 = 15;
 const STONE_WIDTH: i32 = 16;
 const STONE_HEIGHT: i32 = 6;
@@ -44,22 +43,24 @@ impl Building {
         self.frame_index += 1;
 
         match self.frame_index {
-            16 => background.draw(DrawParams {
-                x: match self.sprite.direction {
-                    Direction::Right => self.sprite.x + STONE_X,
-                    Direction::Left => self.sprite.x - STONE_X - STONE_WIDTH,
-                },
-                y: self.sprite.y - STONE_HEIGHT + 1,
-                frame_set: FrameSet::Stone,
-                frame_index: 0,
-                mirror_x: false,
-                mirror_y: false,
-            }),
-            24 => {
+            6 => {
+                background.draw(DrawParams {
+                    x: match self.sprite.direction {
+                        Direction::Right => self.sprite.x + STONE_X,
+                        Direction::Left => self.sprite.x - STONE_X - STONE_WIDTH,
+                    },
+                    y: self.sprite.y - STONE_HEIGHT + 1,
+                    frame_set: FrameSet::Stone,
+                    frame_index: 0,
+                    mirror_x: false,
+                    mirror_y: false,
+                });
+                self.stone_counter += 1;
+            }
+            12 => {
                 self.frame_index = 0;
                 self.sprite.x += STEP_WIDTH * self.sprite.direction as i32;
                 self.sprite.y -= STONE_HEIGHT;
-                self.stone_counter += 1;
             }
             _ => (),
         }
@@ -68,15 +69,11 @@ impl Building {
     }
 
     fn is_colliding_with_wall(&self, background: &impl Background) -> bool {
-        let x = self.sprite.x + STEP_WIDTH * self.sprite.direction as i32;
-        let y = self.sprite.y - STONE_HEIGHT;
-        let left = x - COLLIDER_WIDTH / 2;
-        let right = x + COLLIDER_WIDTH / 2;
-        let top = y - COLLIDER_HEIGHT;
-        let bottom = y;
+        let offset_x = STEP_WIDTH * self.sprite.direction as i32;
+        let offset_y = -STONE_HEIGHT;
 
-        for x in left..=right {
-            for y in top..bottom {
+        for x in (self.sprite.left() + offset_x)..=(self.sprite.right() + offset_x) {
+            for y in (self.sprite.top() + offset_y)..=(self.sprite.bottom() + offset_y) {
                 if background.get_pixel(x, y).alpha() > 0 {
                     return true;
                 }
@@ -90,7 +87,7 @@ impl Building {
         self.sprite.draw(
             background,
             FrameSet::Building,
-            self.frame_index / UPDATES_PER_FRAME,
+            self.frame_index,
             -SPRITE_WIDTH / 2,
             -BASE_Y,
         );

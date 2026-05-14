@@ -1,10 +1,11 @@
 use image::Pixel;
 
-use super::super::sprite::{Direction, Sprite, COLLIDER_HEIGHT, COLLIDER_WIDTH};
+use super::super::sprite::{Direction, Sprite};
 use super::super::update_result::UpdateResult;
 use crate::screen::{Background, Buffer, FrameSet};
 
-const STEP_WIDTH: i32 = 15;
+const STEP_WIDTH: i32 = 4;
+const STEP_COUNT: i32 = 4;
 const BASE_Y: i32 = 49;
 const SPRITE_WIDTH: i32 = 60;
 
@@ -33,25 +34,21 @@ impl Digging {
         self.frame_index += 1;
 
         match self.frame_index {
-            12 => {
-                self.sprite.x += STEP_WIDTH / 3 * self.sprite.direction as i32;
+            0 | 4 | 5 | 6 => {
+                if self.is_colliding_with_wall(background) {
+                    return Some(UpdateResult::Walking(self.sprite));
+                }
+                self.sprite.x += STEP_WIDTH * self.sprite.direction as i32;
             }
-            4 => {
-                self.erase(background, self.sprite.y - COLLIDER_HEIGHT);
+            1 | 2 | 3 => {
+                self.erase(background, self.sprite.height() * self.frame_index / 3);
             }
-            8 => {
-                self.erase(background, self.sprite.y - COLLIDER_HEIGHT / 2);
-            }
-            16 => {
+            7 => {
                 if self.is_before_wall(background) {
-                    self.sprite.x += STEP_WIDTH / 3 * self.sprite.direction as i32;
+                    self.frame_index = 0;
                 } else {
                     return Some(UpdateResult::Walking(self.sprite));
                 }
-            }
-            20 => {
-                self.frame_index = 0;
-                self.sprite.x += STEP_WIDTH / 3 * self.sprite.direction as i32;
             }
             _ => {}
         }
@@ -59,29 +56,44 @@ impl Digging {
         None
     }
 
-    fn erase(&mut self, background: &mut impl Background, y: i32) {
+    fn is_colliding_with_wall(&self, background: &impl Background) -> bool {
+        let left = match self.sprite.direction {
+            Direction::Right => self.sprite.right() + 1,
+            Direction::Left => self.sprite.left() - STEP_WIDTH,
+        };
+
+        for x in left..=(left + STEP_WIDTH - 1) {
+            for y in self.sprite.top()..=self.sprite.bottom() {
+                if background.get_pixel(x, y).alpha() > 0 {
+                    return true;
+                }
+            }
+        }
+
+        false
+    }
+
+    fn erase(&mut self, background: &mut impl Background, height: i32) {
         background.erase(
             match self.sprite.direction {
-                Direction::Right => self.sprite.x + COLLIDER_WIDTH / 2,
-                Direction::Left => self.sprite.x - COLLIDER_WIDTH / 2 - STEP_WIDTH,
+                Direction::Right => self.sprite.right() + 1,
+                Direction::Left => self.sprite.left() - STEP_COUNT * STEP_WIDTH,
             },
-            y,
-            STEP_WIDTH,
-            COLLIDER_HEIGHT / 2,
+            self.sprite.top(),
+            STEP_COUNT * STEP_WIDTH,
+            height,
         );
     }
 
     fn is_before_wall(&self, background: &impl Background) -> bool {
         let left = match self.sprite.direction {
-            Direction::Right => self.sprite.x + COLLIDER_WIDTH / 2,
-            Direction::Left => self.sprite.x - COLLIDER_WIDTH / 2 - STEP_WIDTH,
+            Direction::Right => self.sprite.right() + 1,
+            Direction::Left => self.sprite.left() - STEP_WIDTH * STEP_COUNT,
         };
-        let right = left + STEP_WIDTH;
-        let top = self.sprite.y - COLLIDER_HEIGHT + 1;
-        let bottom = self.sprite.y;
+        let right = left + STEP_WIDTH * STEP_COUNT - 1;
 
         for x in left..=right {
-            for y in top..=bottom {
+            for y in self.sprite.top()..=self.sprite.bottom() {
                 if background.get_pixel(x, y).alpha() > 0 {
                     return true;
                 }
@@ -95,7 +107,7 @@ impl Digging {
         self.sprite.draw(
             screen,
             FrameSet::Digging,
-            self.frame_index / 4,
+            self.frame_index,
             -SPRITE_WIDTH / 2,
             -BASE_Y,
         );

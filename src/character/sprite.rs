@@ -2,8 +2,9 @@ use image::Pixel;
 
 use crate::screen::{Background, Buffer, DrawParams, FrameSet};
 
-pub const COLLIDER_WIDTH: i32 = 24;
+pub const COLLIDER_WIDTH: i32 = 25;
 pub const COLLIDER_HEIGHT: i32 = 36;
+pub const SELECTION_MARGIN: i32 = 10;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
@@ -19,13 +20,28 @@ pub struct Sprite {
 }
 
 impl Sprite {
-    pub fn is_on_ground(&self, background: &impl Background) -> bool {
-        let start_x = self.x - COLLIDER_WIDTH / 2;
-        let end_x = self.x + COLLIDER_WIDTH / 2;
-        let y = self.y + 1;
+    pub fn left(&self) -> i32 {
+        self.x - (COLLIDER_WIDTH - 1) / 2
+    }
+    pub fn right(&self) -> i32 {
+        self.x + (COLLIDER_WIDTH - 1) / 2
+    }
+    pub fn top(&self) -> i32 {
+        self.y - (COLLIDER_HEIGHT - 1)
+    }
+    pub fn bottom(&self) -> i32 {
+        self.y
+    }
+    pub fn width(&self) -> i32 {
+        COLLIDER_WIDTH
+    }
+    pub fn height(&self) -> i32 {
+        COLLIDER_HEIGHT
+    }
 
-        for x in start_x..=end_x {
-            if background.get_pixel(x, y).alpha() > 0 {
+    pub fn is_on_ground(&self, background: &impl Background) -> bool {
+        for x in self.left()..=self.right() {
+            if background.get_pixel(x, self.bottom() + 1).alpha() > 0 {
                 return true;
             }
         }
@@ -34,19 +50,17 @@ impl Sprite {
     }
 
     pub fn is_in_world(&self, background: &impl Background) -> bool {
-        let left = self.x - COLLIDER_WIDTH / 2;
-        let right = self.x + COLLIDER_WIDTH / 2;
-        let top = self.y - COLLIDER_HEIGHT;
-        let bottom = self.y;
-
-        right >= 0 || left < background.width() || bottom >= 0 || top < background.height()
+        self.left() < background.width()
+            && self.right() >= 0
+            && self.top() < background.height()
+            && self.bottom() >= 0
     }
 
     pub fn is_inside(&self, x: i32, y: i32) -> bool {
-        let left = self.x - COLLIDER_WIDTH / 2;
-        let right = self.x + COLLIDER_WIDTH / 2;
-        let top = self.y - COLLIDER_HEIGHT;
-        let bottom = self.y;
+        let left = self.left() - SELECTION_MARGIN;
+        let right = self.right() + SELECTION_MARGIN;
+        let top = self.top() - SELECTION_MARGIN;
+        let bottom = self.bottom() + SELECTION_MARGIN;
 
         x >= left && x <= right && y >= top && y <= bottom
     }

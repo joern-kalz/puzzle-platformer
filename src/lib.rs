@@ -23,7 +23,7 @@ impl World {
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
         let screen = Screen::new();
-        let character = Character::new(200, 300);
+        let character = Character::new(250, 300);
         let hud = Hud::new(screen.width(), screen.height());
         World {
             screen,
@@ -51,8 +51,8 @@ impl World {
         }
 
         self.last_update_time = time_in_ms;
-        self.screen.clear();
         self.character.update(&mut self.screen);
+        self.screen.clear();
         self.character.draw(&mut self.screen);
         self.hud.draw(&mut self.screen);
     }
