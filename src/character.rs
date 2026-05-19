@@ -1,5 +1,5 @@
 use crate::screen::{Background, Buffer};
-use actions::{Building, Digging, Jumping, Walking};
+use actions::{Building, Digging, Falling, Jumping, Walking};
 use sprite::{Direction, Sprite};
 use update_result::UpdateResult;
 
@@ -12,6 +12,7 @@ enum State {
     Building(Building),
     Digging(Digging),
     Jumping(Jumping),
+    Falling(Falling),
     Dead,
 }
 
@@ -42,6 +43,7 @@ impl Character {
             State::Building(building) => building.update(background),
             State::Digging(digging) => digging.update(background),
             State::Jumping(jumping) => jumping.update(background),
+            State::Falling(falling) => falling.update(background),
             State::Dead => None,
         };
 
@@ -49,6 +51,7 @@ impl Character {
             self.state = match result {
                 UpdateResult::Walking(sprite) => State::Walking(Walking::new(sprite)),
                 UpdateResult::Dead => State::Dead,
+                UpdateResult::Falling(sprite) => State::Falling(Falling::new(sprite)),
             };
         }
     }
@@ -59,6 +62,7 @@ impl Character {
             State::Building(building) => building.draw(buffer),
             State::Digging(digging) => digging.draw(buffer),
             State::Jumping(jumping) => jumping.draw(buffer),
+            State::Falling(falling) => falling.draw(buffer),
             State::Dead => (),
         }
     }
@@ -89,6 +93,7 @@ impl Character {
             State::Building(building) => Some(building.get_sprite()),
             State::Digging(digging) => Some(digging.get_sprite()),
             State::Jumping(jumping) => Some(jumping.get_sprite()),
+            State::Falling(falling) => Some(falling.get_sprite()),
             State::Dead => None,
         }
     }

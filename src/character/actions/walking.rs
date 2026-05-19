@@ -37,7 +37,7 @@ impl Walking {
                     return None;
                 }
             }
-            return None;
+            return Some(UpdateResult::Falling(self.sprite));
         }
 
         for offset in 0..MAX_STEP_HEIGHT {
