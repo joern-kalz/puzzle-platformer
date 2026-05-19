@@ -1,11 +1,9 @@
 use wasm_bindgen::prelude::*;
 
-use character::{Action, Character};
-use hud::{ActionButton, Hud};
+use level::Level;
 use screen::Screen;
 
-mod character;
-mod hud;
+mod level;
 mod screen;
 
 const FRAME_DURATION_IN_MS: f64 = 1000.0 / 30.0;
@@ -13,9 +11,8 @@ const FRAME_DURATION_IN_MS: f64 = 1000.0 / 30.0;
 #[wasm_bindgen]
 pub struct World {
     screen: Screen,
-    character: Character,
-    hud: Hud,
     last_update_time: f64,
+    level: Level,
 }
 
 #[wasm_bindgen]
@@ -23,13 +20,11 @@ impl World {
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
         let screen = Screen::new();
-        let character = Character::new(250, 300);
-        let hud = Hud::new(screen.width(), screen.height());
+        let level = Level::new(screen.width(), screen.height());
         World {
             screen,
-            character,
-            hud,
             last_update_time: 0.0,
+            level,
         }
     }
 
@@ -51,26 +46,17 @@ impl World {
         }
 
         self.last_update_time = time_in_ms;
-        self.character.update(&mut self.screen);
+        self.level.update(&mut self.screen);
         self.screen.clear();
-        self.character.draw(&mut self.screen);
-        self.hud.draw(&mut self.screen);
+        self.level.draw(&mut self.screen);
     }
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
-        self.hud.is_inside(x, y) || self.character.is_inside(x, y)
+        self.level.on_hover(x, y)
     }
 
     pub fn on_click(&mut self, x: i32, y: i32) {
-        if self.hud.is_inside(x, y) {
-            self.hud.on_click(x, y);
-        } else if self.character.is_inside(x, y) {
-            match self.hud.get_active_action() {
-                ActionButton::Build => self.character.perform(Action::Build),
-                ActionButton::Dig => self.character.perform(Action::Dig),
-                ActionButton::Jump => self.character.perform(Action::Jump),
-            }
-        }
+        self.level.on_click(x, y);
     }
 }
 
