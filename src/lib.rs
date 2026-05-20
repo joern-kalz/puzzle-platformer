@@ -4,6 +4,7 @@ use level::Level;
 use screen::Screen;
 
 mod level;
+mod package;
 mod screen;
 
 const FRAME_DURATION_IN_MS: f64 = 1000.0 / 30.0;
@@ -19,8 +20,13 @@ pub struct World {
 impl World {
     #[wasm_bindgen(constructor)]
     pub fn new() -> World {
-        let screen = Screen::new();
-        let level = Level::new(screen.width(), screen.height());
+        let package = &package::PACKAGES[0];
+
+        let mut screen = Screen::new();
+        screen.load_background(package.background);
+
+        let level = Level::new(screen.width(), screen.height(), package.level_params);
+
         World {
             screen,
             last_update_time: 0.0,
@@ -46,7 +52,7 @@ impl World {
         }
 
         self.last_update_time = time_in_ms;
-        self.level.update(&mut self.screen);
+        self.level.update(&mut self.screen, time_in_ms);
         self.screen.clear();
         self.level.draw(&mut self.screen);
     }

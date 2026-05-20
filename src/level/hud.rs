@@ -101,7 +101,7 @@ impl Hud {
         });
     }
 
-    pub fn is_inside(&mut self, x: i32, y: i32) -> bool {
+    pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
         for button in &self.buttons {
             if button.is_inside(x, y) && self.active != button.action {
                 self.hover = Some(button.action);
@@ -113,12 +113,14 @@ impl Hud {
         return false;
     }
 
-    pub fn on_click(&mut self, x: i32, y: i32) {
+    pub fn on_click(&mut self, x: i32, y: i32) -> bool {
         for button in &self.buttons {
             if button.is_inside(x, y) {
                 self.active = button.action;
-                return;
+                return true;
             }
         }
+
+        false
     }
 }

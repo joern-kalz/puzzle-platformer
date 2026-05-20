@@ -7,7 +7,8 @@ use crate::screen::frame_sets::POSITIONS;
 mod frame_sets;
 
 const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
-const LEVEL_DATA: &[u8] = include_bytes!("../assets/level.png");
+const WIDTH: i32 = 400;
+const HEIGHT: i32 = 400;
 
 pub trait Buffer {
     fn draw(&mut self, params: DrawParams);
@@ -38,12 +39,7 @@ pub struct DrawParams {
 
 impl Screen {
     pub fn new() -> Screen {
-        let background = ImageReader::new(std::io::Cursor::new(LEVEL_DATA))
-            .with_guessed_format()
-            .expect("Failed to guess image format of level image")
-            .decode()
-            .expect("Failed to decode level image")
-            .to_rgba8();
+        let background = RgbaImage::new(WIDTH as u32, HEIGHT as u32);
 
         let sprite_sheet = ImageReader::new(std::io::Cursor::new(SPRITE_SHEET_DATA))
             .with_guessed_format()
@@ -52,7 +48,7 @@ impl Screen {
             .expect("Failed to decode sprite sheet")
             .to_rgba8();
 
-        let buffer = RgbaImage::new(background.width(), background.height());
+        let buffer = RgbaImage::new(WIDTH as u32, HEIGHT as u32);
 
         Screen {
             buffer,
@@ -61,16 +57,27 @@ impl Screen {
         }
     }
 
+    pub fn load_background(&mut self, data: &[u8]) {
+        let background = ImageReader::new(std::io::Cursor::new(data))
+            .with_guessed_format()
+            .expect("Failed to guess image format of level image")
+            .decode()
+            .expect("Failed to decode level image")
+            .to_rgba8();
+
+        self.background = background;
+    }
+
     pub fn clear(&mut self) {
         self.buffer.copy_from_slice(&self.background)
     }
 
     pub fn width(&self) -> i32 {
-        self.background.width() as i32
+        WIDTH
     }
 
     pub fn height(&self) -> i32 {
-        self.background.height() as i32
+        HEIGHT
     }
 
     pub fn data(&self) -> *const u8 {
