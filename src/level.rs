@@ -1,5 +1,5 @@
 use crate::package::LevelParams;
-use crate::screen::{Background, Buffer};
+use crate::screen::{Background, Buffer, DrawParams, FrameSet};
 use character::{Action, Character};
 use hud::{ActionButton, Hud};
 
@@ -7,6 +7,8 @@ mod character;
 mod hud;
 
 const SPAWN_INTERVAL_IN_MS: f64 = 2000.0;
+const DOOR_WIDTH: i32 = 38;
+const DOOR_HEIGHT: i32 = 44;
 
 pub struct Level {
     characters: Vec<Character>,
@@ -38,11 +40,19 @@ impl Level {
     }
 
     pub fn draw(&self, buffer: &mut impl Buffer) {
+        self.draw_door(buffer);
+
         for character in &self.characters {
             character.draw(buffer);
         }
 
         self.hud.draw(buffer);
+    }
+
+    fn draw_door(&self, buffer: &mut impl Buffer) {
+        let x = self.params.door.x - DOOR_WIDTH / 2;
+        let y = self.params.door.y - DOOR_HEIGHT;
+        buffer.draw(DrawParams::new(x, y, FrameSet::Door));
     }
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {

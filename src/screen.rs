@@ -148,3 +148,28 @@ fn draw(src: &RgbaImage, dst: &mut RgbaImage, params: DrawParams) {
 
     imageops::overlay(dst, &src, params.x as i64, params.y as i64);
 }
+
+impl DrawParams {
+    pub fn new(x: i32, y: i32, frame_set: FrameSet) -> DrawParams {
+        DrawParams {
+            x,
+            y,
+            frame_set,
+            frame_index: 0,
+            mirror_x: false,
+            mirror_y: false,
+        }
+    }
+
+    pub fn _frame_index(&mut self, frame_index: i32) {
+        self.frame_index = frame_index;
+    }
+
+    pub fn _mirror_x(&mut self, mirror_x: bool) {
+        self.mirror_x = mirror_x;
+    }
+
+    pub fn _mirror_y(&mut self, mirror_y: bool) {
+        self.mirror_y = mirror_y;
+    }
+}
