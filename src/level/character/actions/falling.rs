@@ -6,7 +6,7 @@ const NUM_SPRITES: i32 = 12;
 const STEP_HEIGHT: i32 = 4;
 const BASE_Y: i32 = 49;
 const SPRITE_WIDTH: i32 = 60;
-const MAX_FALL_HEIGHT: i32 = 50;
+const MAX_FALL_HEIGHT: i32 = 100;
 
 pub struct Falling {
     sprite: Sprite,

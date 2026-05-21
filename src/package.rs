@@ -19,6 +19,6 @@ pub const PACKAGES: &[Package] = &[Package {
     background: include_bytes!("../assets/level.png"),
     level_params: LevelParams {
         door: Vec2d { x: 69, y: 284 },
-        spawn: Vec2d { x: 30, y: 240 },
+        spawn: Vec2d { x: 30, y: 2 },
     },
 }];
