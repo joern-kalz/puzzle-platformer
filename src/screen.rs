@@ -12,6 +12,7 @@ const HEIGHT: i32 = 400;
 
 pub trait Buffer {
     fn draw(&mut self, params: DrawParams);
+    fn set_pixel(&mut self, x: i32, y: i32, color: Rgba<u8>);
 }
 
 pub trait Background {
@@ -89,6 +90,12 @@ impl Screen {
 impl Buffer for Screen {
     fn draw(&mut self, params: DrawParams) {
         draw(&self.sprite_sheet, &mut self.buffer, params);
+    }
+
+    fn set_pixel(&mut self, x: i32, y: i32, color: Rgba<u8>) {
+        if self.buffer.in_bounds(x as u32, y as u32) {
+            self.buffer.put_pixel(x as u32, y as u32, color);
+        }
     }
 }
 

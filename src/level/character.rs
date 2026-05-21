@@ -2,7 +2,7 @@ use crate::{
     package::Vec2d,
     screen::{Background, Buffer},
 };
-use actions::{Building, Digging, Falling, Jumping, Leaving, Walking};
+use actions::{Building, Digging, Exploding, Falling, Jumping, Leaving, Walking};
 use sprite::{Direction, Sprite};
 use update_result::UpdateResult;
 
@@ -17,6 +17,7 @@ enum State {
     Jumping(Jumping),
     Falling(Falling),
     Leaving(Leaving),
+    Exploding(Exploding),
 }
 
 pub struct Character {
@@ -57,6 +58,7 @@ impl Character {
             State::Jumping(jumping) => jumping.update(background),
             State::Falling(falling) => falling.update(background),
             State::Leaving(leaving) => leaving.update(),
+            State::Exploding(exploding) => exploding.update(),
         };
 
         let Some(result) = result else {
@@ -78,6 +80,10 @@ impl Character {
                 self.state = State::Walking(Walking::new(sprite));
                 None
             }
+            UpdateResult::Exploding(sprite) => {
+                self.state = State::Exploding(Exploding::new(sprite));
+                None
+            }
         }
     }
 
@@ -89,6 +95,7 @@ impl Character {
             State::Jumping(jumping) => jumping.draw(buffer),
             State::Falling(falling) => falling.draw(buffer),
             State::Leaving(leaving) => leaving.draw(buffer),
+            State::Exploding(exploding) => exploding.draw(buffer),
         }
     }
 
@@ -120,6 +127,7 @@ impl Character {
             State::Jumping(jumping) => Some(jumping.get_sprite()),
             State::Falling(falling) => Some(falling.get_sprite()),
             State::Leaving(leaving) => Some(leaving.get_sprite()),
+            State::Exploding(exploding) => Some(exploding.get_sprite()),
         }
     }
 }

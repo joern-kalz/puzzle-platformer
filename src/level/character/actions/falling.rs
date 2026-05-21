@@ -6,10 +6,12 @@ const NUM_SPRITES: i32 = 12;
 const STEP_HEIGHT: i32 = 4;
 const BASE_Y: i32 = 49;
 const SPRITE_WIDTH: i32 = 60;
+const MAX_FALL_HEIGHT: i32 = 50;
 
 pub struct Falling {
     sprite: Sprite,
     frame_index: i32,
+    start_height: i32,
 }
 
 impl Falling {
@@ -17,6 +19,7 @@ impl Falling {
         Falling {
             sprite,
             frame_index: 0,
+            start_height: sprite.y,
         }
     }
 
@@ -29,8 +32,13 @@ impl Falling {
 
         for _ in 0..STEP_HEIGHT {
             self.sprite.y += 1;
+
             if self.sprite.is_on_ground(background) {
-                return Some(UpdateResult::Walking(self.sprite));
+                if self.sprite.y - self.start_height > MAX_FALL_HEIGHT {
+                    return Some(UpdateResult::Exploding(self.sprite));
+                } else {
+                    return Some(UpdateResult::Walking(self.sprite));
+                }
             }
         }
 
