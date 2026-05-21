@@ -2,6 +2,7 @@ use image::Pixel;
 
 use super::super::sprite::{Direction, Sprite};
 use super::super::update_result::UpdateResult;
+use crate::package::Vec2d;
 use crate::screen::{Background, Buffer, FrameSet};
 
 const NUM_SPRITES: i32 = 12;
@@ -9,6 +10,7 @@ const STEP_WIDTH: i32 = 2;
 const MAX_STEP_HEIGHT: i32 = 10;
 const BASE_Y: i32 = 49;
 const SPRITE_WIDTH: i32 = 60;
+const DOOR_RADIUS: i32 = 5;
 
 pub struct Walking {
     sprite: Sprite,
@@ -23,8 +25,16 @@ impl Walking {
         }
     }
 
-    pub fn update(&mut self, background: &impl Background) -> Option<UpdateResult> {
+    pub fn update(&mut self, background: &impl Background, door: Vec2d) -> Option<UpdateResult> {
         self.frame_index = (self.frame_index + 1) % NUM_SPRITES;
+
+        if self.is_near_door(door) {
+            return Some(UpdateResult::Leaving(Sprite {
+                x: door.x,
+                y: self.sprite.y,
+                direction: Direction::Left,
+            }));
+        }
 
         if !self.sprite.is_in_world(background) {
             return Some(UpdateResult::Dead);
@@ -54,6 +64,10 @@ impl Walking {
         };
 
         None
+    }
+
+    fn is_near_door(&mut self, door: Vec2d) -> bool {
+        (self.sprite.x - door.x).abs() < DOOR_RADIUS && (self.sprite.y - door.y).abs() < DOOR_RADIUS
     }
 
     fn is_colliding_with_wall(&self, background: &impl Background, offset: i32) -> bool {

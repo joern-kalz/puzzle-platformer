@@ -1,3 +1,4 @@
+use crate::level::character::CharacterUpdateResult;
 use crate::package::LevelParams;
 use crate::screen::{Background, Buffer, DrawParams, FrameSet};
 use character::{Action, Character};
@@ -9,12 +10,15 @@ mod hud;
 const SPAWN_INTERVAL_IN_MS: f64 = 2000.0;
 const DOOR_WIDTH: i32 = 38;
 const DOOR_HEIGHT: i32 = 44;
+const CHARACTER_COUNT: i32 = 10;
 
 pub struct Level {
     characters: Vec<Character>,
     hud: Hud,
     last_spawn_time_in_ms: f64,
     params: LevelParams,
+    left_count: i32,
+    dead_count: i32,
 }
 
 impl Level {
@@ -24,18 +28,38 @@ impl Level {
             hud: Hud::new(width, height),
             last_spawn_time_in_ms: f64::MIN,
             params,
+            left_count: 0,
+            dead_count: 0,
         }
     }
 
     pub fn update(&mut self, background: &mut impl Background, time_in_ms: f64) {
-        if time_in_ms - self.last_spawn_time_in_ms > SPAWN_INTERVAL_IN_MS {
+        self.spawn_if_due(time_in_ms);
+        let mut i = 0;
+
+        while i < self.characters.len() {
+            match self.characters[i].update(background, self.params.door) {
+                None => i += 1,
+                Some(CharacterUpdateResult::Left) => {
+                    self.characters.remove(i);
+                    self.left_count += 1
+                }
+                Some(CharacterUpdateResult::Dead) => {
+                    self.characters.remove(i);
+                    self.dead_count += 1
+                }
+            }
+        }
+    }
+
+    fn spawn_if_due(&mut self, time_in_ms: f64) {
+        let time_since_spawn_in_ms = time_in_ms - self.last_spawn_time_in_ms;
+        let count = self.left_count + self.dead_count + self.characters.len() as i32;
+
+        if time_since_spawn_in_ms > SPAWN_INTERVAL_IN_MS && count <= CHARACTER_COUNT {
             let character = Character::new(self.params.spawn.x, self.params.spawn.y);
             self.characters.push(character);
             self.last_spawn_time_in_ms = time_in_ms;
-        }
-
-        for character in &mut self.characters {
-            character.update(background);
         }
     }
 

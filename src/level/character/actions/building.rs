@@ -44,17 +44,12 @@ impl Building {
 
         match self.frame_index {
             6 => {
-                background.draw(DrawParams {
-                    x: match self.sprite.direction {
-                        Direction::Right => self.sprite.x + STONE_X,
-                        Direction::Left => self.sprite.x - STONE_X - STONE_WIDTH,
-                    },
-                    y: self.sprite.y - STONE_HEIGHT + 1,
-                    frame_set: FrameSet::Stone,
-                    frame_index: 0,
-                    mirror_x: false,
-                    mirror_y: false,
-                });
+                let x = match self.sprite.direction {
+                    Direction::Right => self.sprite.x + STONE_X,
+                    Direction::Left => self.sprite.x - STONE_X - STONE_WIDTH,
+                };
+                let y = self.sprite.y - STONE_HEIGHT + 1;
+                background.draw(DrawParams::new(x, y, FrameSet::Stone));
                 self.stone_counter += 1;
             }
             12 => {

@@ -1,5 +1,8 @@
-use crate::screen::{Background, Buffer};
-use actions::{Building, Digging, Falling, Jumping, Walking};
+use crate::{
+    package::Vec2d,
+    screen::{Background, Buffer},
+};
+use actions::{Building, Digging, Falling, Jumping, Leaving, Walking};
 use sprite::{Direction, Sprite};
 use update_result::UpdateResult;
 
@@ -13,7 +16,7 @@ enum State {
     Digging(Digging),
     Jumping(Jumping),
     Falling(Falling),
-    Dead,
+    Leaving(Leaving),
 }
 
 pub struct Character {
@@ -24,6 +27,11 @@ pub enum Action {
     Build,
     Dig,
     Jump,
+}
+
+pub enum CharacterUpdateResult {
+    Dead,
+    Left,
 }
 
 impl Character {
@@ -37,22 +45,39 @@ impl Character {
         }
     }
 
-    pub fn update(&mut self, background: &mut impl Background) {
+    pub fn update(
+        &mut self,
+        background: &mut impl Background,
+        door: Vec2d,
+    ) -> Option<CharacterUpdateResult> {
         let result = match &mut self.state {
-            State::Walking(walking) => walking.update(background),
+            State::Walking(walking) => walking.update(background, door),
             State::Building(building) => building.update(background),
             State::Digging(digging) => digging.update(background),
             State::Jumping(jumping) => jumping.update(background),
             State::Falling(falling) => falling.update(background),
-            State::Dead => None,
+            State::Leaving(leaving) => leaving.update(),
         };
 
-        if let Some(result) = result {
-            self.state = match result {
-                UpdateResult::Walking(sprite) => State::Walking(Walking::new(sprite)),
-                UpdateResult::Dead => State::Dead,
-                UpdateResult::Falling(sprite) => State::Falling(Falling::new(sprite)),
-            };
+        let Some(result) = result else {
+            return None;
+        };
+
+        match result {
+            UpdateResult::Dead => Some(CharacterUpdateResult::Dead),
+            UpdateResult::Left => Some(CharacterUpdateResult::Left),
+            UpdateResult::Leaving(sprite) => {
+                self.state = State::Leaving(Leaving::new(sprite));
+                None
+            }
+            UpdateResult::Falling(sprite) => {
+                self.state = State::Falling(Falling::new(sprite));
+                None
+            }
+            UpdateResult::Walking(sprite) => {
+                self.state = State::Walking(Walking::new(sprite));
+                None
+            }
         }
     }
 
@@ -63,7 +88,7 @@ impl Character {
             State::Digging(digging) => digging.draw(buffer),
             State::Jumping(jumping) => jumping.draw(buffer),
             State::Falling(falling) => falling.draw(buffer),
-            State::Dead => (),
+            State::Leaving(leaving) => leaving.draw(buffer),
         }
     }
 
@@ -94,7 +119,7 @@ impl Character {
             State::Digging(digging) => Some(digging.get_sprite()),
             State::Jumping(jumping) => Some(jumping.get_sprite()),
             State::Falling(falling) => Some(falling.get_sprite()),
-            State::Dead => None,
+            State::Leaving(leaving) => Some(leaving.get_sprite()),
         }
     }
 }

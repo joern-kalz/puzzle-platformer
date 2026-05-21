@@ -35,6 +35,7 @@ pub struct DrawParams {
     pub frame_index: i32,
     pub mirror_x: bool,
     pub mirror_y: bool,
+    pub scale: f32,
 }
 
 impl Screen {
@@ -146,6 +147,12 @@ fn draw(src: &RgbaImage, dst: &mut RgbaImage, params: DrawParams) {
         src = imageops::flip_vertical(&src);
     }
 
+    if params.scale != 1.0 {
+        let nwidth = (src.width() as f32 * params.scale) as u32;
+        let nheight = (src.height() as f32 * params.scale) as u32;
+        src = imageops::resize(&src, nwidth, nheight, imageops::FilterType::Lanczos3);
+    }
+
     imageops::overlay(dst, &src, params.x as i64, params.y as i64);
 }
 
@@ -158,18 +165,27 @@ impl DrawParams {
             frame_index: 0,
             mirror_x: false,
             mirror_y: false,
+            scale: 1.0,
         }
     }
 
-    pub fn _frame_index(&mut self, frame_index: i32) {
+    pub fn frame_index(mut self, frame_index: i32) -> DrawParams {
         self.frame_index = frame_index;
+        self
     }
 
-    pub fn _mirror_x(&mut self, mirror_x: bool) {
+    pub fn mirror_x(mut self, mirror_x: bool) -> DrawParams {
         self.mirror_x = mirror_x;
+        self
     }
 
-    pub fn _mirror_y(&mut self, mirror_y: bool) {
+    pub fn _mirror_y(mut self, mirror_y: bool) -> DrawParams {
         self.mirror_y = mirror_y;
+        self
+    }
+
+    pub fn scale(mut self, scale: f32) -> DrawParams {
+        self.scale = scale;
+        self
     }
 }

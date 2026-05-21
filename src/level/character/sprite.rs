@@ -73,13 +73,27 @@ impl Sprite {
         offset_x: i32,
         offset_y: i32,
     ) {
-        buffer.draw(DrawParams {
-            x: self.x + offset_x,
-            y: self.y + offset_y,
-            frame_set,
-            frame_index,
-            mirror_x: self.direction == Direction::Left,
-            mirror_y: false,
-        });
+        buffer.draw(
+            DrawParams::new(self.x + offset_x, self.y + offset_y, frame_set)
+                .frame_index(frame_index)
+                .mirror_x(self.direction == Direction::Left),
+        );
+    }
+
+    pub fn draw_scaled(
+        &self,
+        buffer: &mut impl Buffer,
+        frame_set: FrameSet,
+        frame_index: i32,
+        offset_x: i32,
+        offset_y: i32,
+        scale: f32,
+    ) {
+        buffer.draw(
+            DrawParams::new(self.x + offset_x, self.y + offset_y, frame_set)
+                .frame_index(frame_index)
+                .mirror_x(self.direction == Direction::Left)
+                .scale(scale),
+        );
     }
 }

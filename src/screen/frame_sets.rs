@@ -8,7 +8,7 @@ pub enum FrameSet {
     ButtonPressed = 6,
     Stone = 7,
     Falling = 8,
-    // Leaving = 9,
+    Leaving = 9,
     // GameOver = 10,
     // TheEnd = 11,
     Door = 12,

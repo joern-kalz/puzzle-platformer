@@ -74,14 +74,7 @@ impl Hud {
             FrameSet::ButtonNormal
         };
 
-        screen.draw(DrawParams {
-            x: button.x,
-            y: button.y,
-            frame_set,
-            frame_index: 0,
-            mirror_x: false,
-            mirror_y: false,
-        });
+        screen.draw(DrawParams::new(button.x, button.y, frame_set));
     }
 
     fn draw_icon(&self, screen: &mut impl Buffer, button: &Button) {
@@ -91,14 +84,7 @@ impl Hud {
             ActionButton::Jump => FrameSet::Jumping,
         };
 
-        screen.draw(DrawParams {
-            x: button.x,
-            y: button.y,
-            frame_set,
-            frame_index: 0,
-            mirror_x: false,
-            mirror_y: false,
-        });
+        screen.draw(DrawParams::new(button.x, button.y, frame_set));
     }
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
