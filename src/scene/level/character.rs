@@ -87,6 +87,13 @@ impl Character {
         }
     }
 
+    pub fn z_index(&self) -> i32 {
+        match &self.state {
+            State::Leaving(leaving) => leaving.get_frame_index(),
+            _ => -1,
+        }
+    }
+
     pub fn draw(&self, buffer: &mut impl Buffer) {
         match &self.state {
             State::Walking(walking) => walking.draw(buffer),

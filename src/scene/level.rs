@@ -89,7 +89,10 @@ impl Level {
     pub fn draw(&self, buffer: &mut impl Buffer) {
         self.draw_door(buffer);
 
-        for character in &self.characters {
+        let mut characters: Vec<&Character> = self.characters.iter().collect();
+        characters.sort_by_key(|character| -character.z_index());
+
+        for character in characters {
             character.draw(buffer);
         }
 

@@ -49,4 +49,8 @@ impl Leaving {
     pub fn get_sprite(&self) -> Sprite {
         self.sprite
     }
+
+    pub fn get_frame_index(&self) -> i32 {
+        self.frame_index
+    }
 }
