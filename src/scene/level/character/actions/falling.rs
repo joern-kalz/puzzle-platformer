@@ -1,6 +1,6 @@
 use super::super::sprite::Sprite;
 use super::super::update_result::UpdateResult;
-use crate::screen::{Background, Buffer, FrameSet};
+use crate::scene::screen::{Background, Buffer, FrameSet};
 
 const NUM_SPRITES: i32 = 12;
 const STEP_HEIGHT: i32 = 4;

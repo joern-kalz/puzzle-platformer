@@ -1,3 +1,4 @@
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum FrameSet {
     Walking = 0,
     Building = 1,
@@ -12,6 +13,8 @@ pub enum FrameSet {
     GameOver = 10,
     TheEnd = 11,
     Door = 12,
+    Replay = 13,
+    Next = 14,
 }
 
 pub const POSITIONS: &[&[(u32, u32, u32, u32)]] = &[
@@ -84,5 +87,7 @@ pub const POSITIONS: &[&[(u32, u32, u32, u32)]] = &[
     ],
     &[(0, 540, 180, 120)],
     &[(180, 540, 180, 120)],
-    &[(22, 662, 38, 44)],
+    &[(0, 670, 38, 44)],
+    &[(60, 660, 60, 60)],
+    &[(120, 660, 60, 60)],
 ];

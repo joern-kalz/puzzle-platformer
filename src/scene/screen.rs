@@ -1,12 +1,12 @@
 use image::GenericImageView;
 use image::{imageops, ImageReader, Rgba, RgbaImage};
 
-pub use crate::screen::frame_sets::FrameSet;
-use crate::screen::frame_sets::POSITIONS;
+pub use crate::scene::screen::frame_sets::FrameSet;
+use crate::scene::screen::frame_sets::POSITIONS;
 
 mod frame_sets;
 
-const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../assets/sprite_sheet.png");
+const SPRITE_SHEET_DATA: &[u8] = include_bytes!("../../assets/sprite_sheet.png");
 const WIDTH: i32 = 400;
 const HEIGHT: i32 = 400;
 

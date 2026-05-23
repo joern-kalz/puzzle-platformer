@@ -1,6 +1,6 @@
 use crate::{
-    package::Vec2d,
-    screen::{Background, Buffer},
+    scene::package::Vec2d,
+    scene::screen::{Background, Buffer},
 };
 use actions::{Building, Digging, Exploding, Falling, Jumping, Leaving, Walking};
 use sprite::{Direction, Sprite};

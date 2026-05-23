@@ -1,49 +1,37 @@
 use wasm_bindgen::prelude::*;
 
-use level::Level;
-use screen::Screen;
+use scene::Scene;
 
-mod level;
-mod package;
-mod screen;
+mod scene;
 
 const FRAME_DURATION_IN_MS: f64 = 1000.0 / 30.0;
 
 #[wasm_bindgen]
-pub struct World {
-    screen: Screen,
+pub struct Game {
     last_update_time: f64,
-    level: Level,
+    scene: Scene,
 }
 
 #[wasm_bindgen]
-impl World {
+impl Game {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> World {
-        let package = &package::PACKAGES[0];
-
-        let mut screen = Screen::new();
-        screen.load_background(package.background);
-
-        let level = Level::new(screen.width(), screen.height(), package.level_params);
-
-        World {
-            screen,
+    pub fn new() -> Game {
+        Game {
             last_update_time: 0.0,
-            level,
+            scene: Scene::new(),
         }
     }
 
     pub fn get_width(&self) -> i32 {
-        self.screen.width()
+        self.scene.width()
     }
 
     pub fn get_height(&self) -> i32 {
-        self.screen.height()
+        self.scene.height()
     }
 
     pub fn get_pixel_buffer_ptr(&self) -> *const u8 {
-        self.screen.data()
+        self.scene.pixel_buffer_ptr()
     }
 
     pub fn update_frame(&mut self, time_in_ms: f64) {
@@ -52,21 +40,19 @@ impl World {
         }
 
         self.last_update_time = time_in_ms;
-        self.level.update(&mut self.screen, time_in_ms);
-        self.screen.clear();
-        self.level.draw(&mut self.screen);
+        self.scene.update(time_in_ms);
     }
 
     pub fn on_hover(&mut self, x: i32, y: i32) -> bool {
-        self.level.on_hover(x, y)
+        self.scene.on_hover(x, y)
     }
 
     pub fn on_click(&mut self, x: i32, y: i32) {
-        self.level.on_click(x, y);
+        self.scene.on_click(x, y);
     }
 }
 
-impl Default for World {
+impl Default for Game {
     fn default() -> Self {
         Self::new()
     }

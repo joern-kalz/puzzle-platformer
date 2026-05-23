@@ -1,6 +1,6 @@
 use image::Pixel;
 
-use crate::screen::{Background, Buffer, DrawParams, FrameSet};
+use crate::scene::screen::{Background, Buffer, DrawParams, FrameSet};
 
 pub const COLLIDER_WIDTH: i32 = 25;
 pub const COLLIDER_HEIGHT: i32 = 36;

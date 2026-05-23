@@ -1,6 +1,6 @@
 use super::super::sprite::Sprite;
 use super::super::update_result::UpdateResult;
-use crate::screen::{Background, Buffer, FrameSet};
+use crate::scene::screen::{Background, Buffer, FrameSet};
 
 const BASE_Y: i32 = 49;
 const SPRITE_WIDTH: i32 = 60;

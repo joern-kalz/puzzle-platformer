@@ -2,7 +2,7 @@ use image::Pixel;
 
 use super::super::sprite::{Direction, Sprite};
 use super::super::update_result::UpdateResult;
-use crate::screen::{Background, Buffer, DrawParams, FrameSet};
+use crate::scene::screen::{Background, Buffer, DrawParams, FrameSet};
 
 const STEP_WIDTH: i32 = 15;
 const STONE_WIDTH: i32 = 16;

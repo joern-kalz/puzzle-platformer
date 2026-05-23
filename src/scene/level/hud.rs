@@ -1,4 +1,4 @@
-use crate::screen::{Buffer, DrawParams, FrameSet};
+use crate::scene::screen::{Buffer, DrawParams, FrameSet};
 
 const BUTTON_WIDTH: i32 = 60;
 const BUTTON_HEIGHT: i32 = 60;

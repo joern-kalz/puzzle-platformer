@@ -2,7 +2,7 @@ use image::Pixel;
 
 use super::super::sprite::{Direction, Sprite};
 use super::super::update_result::UpdateResult;
-use crate::screen::{Background, Buffer, FrameSet};
+use crate::scene::screen::{Background, Buffer, FrameSet};
 
 const STEP_WIDTH: i32 = 4;
 const STEP_COUNT: i32 = 4;

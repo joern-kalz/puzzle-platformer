@@ -1,6 +1,6 @@
 use super::super::sprite::Sprite;
 use super::super::update_result::UpdateResult;
-use crate::screen::{Buffer, FrameSet};
+use crate::scene::screen::{Buffer, FrameSet};
 
 const NUM_SPRITES: i32 = 4;
 const BASE_Y: i32 = 49;

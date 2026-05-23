@@ -2,8 +2,8 @@ use image::Pixel;
 
 use super::super::sprite::{Direction, Sprite};
 use super::super::update_result::UpdateResult;
-use crate::package::Vec2d;
-use crate::screen::{Background, Buffer, FrameSet};
+use crate::scene::package::Vec2d;
+use crate::scene::screen::{Background, Buffer, FrameSet};
 
 const NUM_SPRITES: i32 = 12;
 const STEP_WIDTH: i32 = 2;

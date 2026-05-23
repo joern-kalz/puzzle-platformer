@@ -1,6 +1,6 @@
 use super::super::sprite::Sprite;
 use super::super::update_result::UpdateResult;
-use crate::screen::Buffer;
+use crate::scene::screen::Buffer;
 use image::Rgba;
 use std::f32::consts::PI;
 
