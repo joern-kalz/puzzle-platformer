@@ -6,13 +6,13 @@ const BUTTON_SPACING: i32 = 10;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ActionButton {
-    Build,
     Dig,
+    Build,
     Jump,
 }
 
 const ACTION_BUTTONS: [ActionButton; 3] =
-    [ActionButton::Build, ActionButton::Dig, ActionButton::Jump];
+    [ActionButton::Dig, ActionButton::Build, ActionButton::Jump];
 
 struct Button {
     x: i32,
@@ -50,7 +50,7 @@ impl Hud {
         Self {
             buttons,
             hover: None,
-            active: ActionButton::Build,
+            active: ActionButton::Jump,
         }
     }
 
