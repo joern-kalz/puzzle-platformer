@@ -29,8 +29,14 @@ jobs:
         run: cargo fmt --check
       - name: Lint
         run: cargo clippy -- -D warnings
-      - name: Build
-        run: cargo build --target wasm32-unknown-unknown && wasm-bindgen target/wasm32-unknown-unknown/debug/puzzle_platformer.wasm --out-dir ./pkg --target web
+      - name: Enable the WebAssembly compilation target
+        run: rustup target add wasm32-unknown-unknown
+      - name: Build WebAssembly binary
+        run: cargo build --target wasm32-unknown-unknown
+      - name: Install wasm-bindgen-cli
+        run: cargo install wasm-bindgen-cli
+      - name: Build JavaScript glue code
+        run: wasm-bindgen target/wasm32-unknown-unknown/debug/puzzle_platformer.wasm --out-dir ./pkg --target web
       - name: Prepare upload
         run: mkdir -p staging/ && cp -r index.html pkg/ staging/
       - name: Setup Pages
