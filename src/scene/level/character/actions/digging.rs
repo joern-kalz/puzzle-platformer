@@ -40,7 +40,7 @@ impl Digging {
                 }
                 self.sprite.x += STEP_WIDTH * self.sprite.direction as i32;
             }
-            1 | 2 | 3 => {
+            1..=3 => {
                 self.erase(background, self.sprite.height() * self.frame_index / 3);
             }
             7 => {

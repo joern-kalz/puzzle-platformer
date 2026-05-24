@@ -22,7 +22,7 @@ impl Button {
     fn is_inside(&self, x: i32, y: i32) -> bool {
         let x_inside = x >= self.x && x < self.x + BUTTON_WIDTH;
         let y_inside = y >= self.y && y < self.y + BUTTON_HEIGHT;
-        return x_inside && y_inside;
+        x_inside && y_inside
     }
 }
 
@@ -115,7 +115,7 @@ impl Score {
         }
 
         self.hover = None;
-        return false;
+        false
     }
 
     pub fn on_click(&mut self, x: i32, y: i32) -> Option<ScoreOnClickResult> {

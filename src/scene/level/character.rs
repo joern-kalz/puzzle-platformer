@@ -61,11 +61,7 @@ impl Character {
             State::Exploding(exploding) => exploding.update(),
         };
 
-        let Some(result) = result else {
-            return None;
-        };
-
-        match result {
+        match result? {
             UpdateResult::Dead => Some(CharacterUpdateResult::Dead),
             UpdateResult::Left => Some(CharacterUpdateResult::Left),
             UpdateResult::Leaving(sprite) => {
@@ -107,7 +103,7 @@ impl Character {
     }
 
     pub fn is_inside(&self, x: i32, y: i32) -> bool {
-        self.get_sprite().map_or(false, |s| s.is_inside(x, y))
+        self.get_sprite().is_some_and(|s| s.is_inside(x, y))
     }
 
     pub fn perform(&mut self, action: Action) {

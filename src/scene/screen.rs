@@ -112,7 +112,7 @@ impl Background for Screen {
             return Rgba([0, 0, 0, 0]);
         }
 
-        self.background.get_pixel(x as u32, y as u32).clone()
+        *self.background.get_pixel(x as u32, y as u32)
     }
 
     fn erase(&mut self, x: i32, y: i32, width: i32, height: i32) {
