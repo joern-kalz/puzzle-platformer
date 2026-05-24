@@ -26,14 +26,14 @@ pub const PACKAGES: &[Package] = &[
     Package {
         background: include_bytes!("../../assets/level_01.png"),
         level_params: LevelParams {
-            door: Vec2d { x: 313, y: 289 },
+            door: Vec2d { x: 317, y: 289 },
             spawn: Vec2d { x: 30, y: 2 },
         },
     },
     Package {
         background: include_bytes!("../../assets/level_02.png"),
         level_params: LevelParams {
-            door: Vec2d { x: 69, y: 284 },
+            door: Vec2d { x: 64, y: 284 },
             spawn: Vec2d { x: 30, y: 2 },
         },
     },
