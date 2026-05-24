@@ -32,7 +32,7 @@ jobs:
       - name: Lint
         run: cargo clippy -- -D warnings
       - name: Prepare upload
-        run: cp -r index.html pkg/ staging/
+        run: mkdir -p staging/ && cp -r index.html pkg/ staging/
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
