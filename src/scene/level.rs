@@ -11,6 +11,7 @@ const SPAWN_INTERVAL_IN_MS: f64 = 2000.0;
 const DOOR_WIDTH: i32 = 38;
 const DOOR_HEIGHT: i32 = 44;
 const CHARACTER_COUNT: i32 = 10;
+const MAX_CLICK_DISTANCE: f32 = 60.0;
 
 pub struct Level {
     characters: Vec<Character>,
@@ -124,15 +125,24 @@ impl Level {
             return;
         }
 
-        for character in &mut self.characters {
-            if character.is_inside(x, y) {
-                match self.hud.get_active_action() {
-                    ActionButton::Build => character.perform(Action::Build),
-                    ActionButton::Dig => character.perform(Action::Dig),
-                    ActionButton::Jump => character.perform(Action::Jump),
-                }
+        let mut nearest_index: Option<usize> = None;
+        let mut nearest_distance: f32 = f32::MAX;
 
-                return;
+        for (i, character) in self.characters.iter().enumerate() {
+            if let Some(d) = character.distance(x, y) {
+                if d < nearest_distance && d <= MAX_CLICK_DISTANCE {
+                    nearest_distance = d;
+                    nearest_index = Some(i);
+                }
+            }
+        }
+
+        if let Some(i) = nearest_index {
+            let action = self.hud.get_active_action();
+            match action {
+                ActionButton::Build => self.characters[i].perform(Action::Build),
+                ActionButton::Dig => self.characters[i].perform(Action::Dig),
+                ActionButton::Jump => self.characters[i].perform(Action::Jump),
             }
         }
     }

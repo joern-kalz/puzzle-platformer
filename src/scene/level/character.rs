@@ -106,6 +106,10 @@ impl Character {
         self.get_sprite().is_some_and(|s| s.is_inside(x, y))
     }
 
+    pub fn distance(&self, x: i32, y: i32) -> Option<f32> {
+        self.get_sprite().map(|s| s.distance(x, y))
+    }
+
     pub fn perform(&mut self, action: Action) {
         if let Some(sprite) = self.get_sprite() {
             match action {

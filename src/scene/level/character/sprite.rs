@@ -1,6 +1,5 @@
-use image::Pixel;
-
 use crate::scene::screen::{Background, Buffer, DrawParams, FrameSet};
+use image::Pixel;
 
 pub const COLLIDER_WIDTH: i32 = 25;
 pub const COLLIDER_HEIGHT: i32 = 36;
@@ -63,6 +62,13 @@ impl Sprite {
         let bottom = self.bottom() + SELECTION_MARGIN;
 
         x >= left && x <= right && y >= top && y <= bottom
+    }
+
+    pub fn distance(&self, x: i32, y: i32) -> f32 {
+        let center_y = self.y - COLLIDER_HEIGHT / 2;
+        let dx = x - self.x;
+        let dy = y - center_y;
+        ((dx * dx + dy * dy) as f32).sqrt()
     }
 
     pub fn draw(
