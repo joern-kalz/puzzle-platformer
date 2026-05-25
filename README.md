@@ -4,6 +4,8 @@ A puzzle-platformer game
 
 ## Development Setup
 
+### Prerequisites
+
 Install [Rust](https://rust-lang.org/).
 
 Install required Rust tools.
@@ -17,6 +19,8 @@ Enable the WebAssembly compilation target.
 ```sh
 rustup target add wasm32-unknown-unknown
 ```
+
+### Build
 
 Build WebAssembly binary.
 
